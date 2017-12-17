@@ -23,6 +23,7 @@ public class RegisterActivity extends AppCompatActivity
     EditText firstName, lastName, email, password;
     FirebaseAuth authentication;
     FirebaseDatabase database = FirebaseDatabase.getInstance();
+    int id;
     Intent intent;
     String firstNameString, lastNameString, emailString, passwordString;
     User user;
@@ -49,15 +50,6 @@ public class RegisterActivity extends AppCompatActivity
             @Override
             public void onClick(View view)
             {
-                firstNameString = firstName.getText().toString();
-                lastNameString = lastName.getText().toString();
-                emailString = email.getText().toString();
-                passwordString = password.getText().toString();
-
-                user = new User(firstNameString, lastNameString, emailString, passwordString);
-
-                databaseUsers.child("A"+user.getAthleteId()).setValue(user);
-
                 authentication.createUserWithEmailAndPassword(emailString, passwordString).addOnCompleteListener(new OnCompleteListener<AuthResult>()
                 {
                     @Override
@@ -65,9 +57,20 @@ public class RegisterActivity extends AppCompatActivity
                     {
                         if(task.isSuccessful())
                         {
+                            firstNameString = firstName.getText().toString();
+                            lastNameString = lastName.getText().toString();
+                            emailString = email.getText().toString();
+                            passwordString = password.getText().toString();
+
+                            user = new User(firstNameString, lastNameString, emailString, passwordString);
+
+                            id = user.getAthleteId();
+
+                            databaseUsers.child("A"+id).setValue(user);
+
                             intent = new Intent(RegisterActivity.this, LoginActivity.class);
                             startActivity(intent);
-                            Toast.makeText(getApplicationContext(),"Registration Complete", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getApplicationContext(),"Registration Complete. Your ID is "+id, Toast.LENGTH_SHORT).show();
                         }
                         else
                         {
