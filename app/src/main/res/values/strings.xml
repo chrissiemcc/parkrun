@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">parkrun</string>
+    <string name="login_button">Login</string>
+    <string name="register_button">Register</string>
+    <string name="athleteLetter">A</string>
+    <string name="btnSignUp">Sign up</string>
+</resources>

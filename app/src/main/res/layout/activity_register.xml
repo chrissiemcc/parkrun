@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.parkrun.main.RegisterActivity">
+
+    <EditText
+        android:hint="First Name"
+        android:id="@+id/firstNameRegisterField"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/lastNameRegisterField"
+        android:layout_alignStart="@+id/lastNameRegisterField"
+        android:ems="10"
+        android:inputType="textPersonName"/>
+
+    <EditText
+        android:hint="Last Name"
+        android:id="@+id/lastNameRegisterField"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/emailRegisterField"
+        android:layout_alignStart="@+id/emailRegisterField"
+        android:ems="10"
+        android:inputType="textPersonName"/>
+
+    <EditText
+        android:hint="Email"
+        android:id="@+id/emailRegisterField"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/passwordRegisterField"
+        android:layout_alignStart="@+id/passwordRegisterField"
+        android:ems="10"
+        android:inputType="textEmailAddress"/>
+
+    <EditText
+        android:hint="Password"
+        android:id="@+id/passwordRegisterField"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/registerSubmit"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="14dp"
+        android:ems="10"
+        android:inputType="textPassword"/>
+
+    <Button
+        android:background="@color/colorPrimary"
+        android:id="@+id/registerSubmit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="135dp"
+        android:text="@string/btnSignUp"
+        android:textColor="@android:color/white"/>
+</RelativeLayout>

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.parkrun.main.LoginActivity">
+
+    <TextView
+        android:gravity="center"
+        android:id="@+id/title"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:text="@string/app_name"
+        android:textSize="36sp"/>
+
+    <TextView
+        android:id="@+id/A"
+        android:layout_above="@+id/passwordLoginField"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="5dp"
+        android:layout_toStartOf="@+id/athleteNumberLoginField"
+        android:layout_width="wrap_content"
+        android:text="@string/athleteLetter"
+        android:textSize="24sp"/>
+
+    <EditText
+        android:ems="10"
+        android:hint="Athlete ID"
+        android:id="@+id/athleteNumberLoginField"
+        android:inputType="number"
+        android:layout_above="@+id/passwordLoginField"
+        android:layout_alignEnd="@+id/passwordLoginField"
+        android:layout_alignStart="@+id/passwordLoginField"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"/>
+
+    <EditText
+        android:ems="10"
+        android:hint="Password"
+        android:id="@+id/passwordLoginField"
+        android:inputType="textPassword"
+        android:layout_above="@+id/loginButton"
+        android:layout_alignEnd="@+id/loginButton"
+        android:layout_alignStart="@+id/loginButton"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="80dp"
+        android:layout_width="wrap_content"/>
+
+    <Button
+        android:background="@color/colorPrimary"
+        android:id="@+id/loginButton"
+        android:layout_height="wrap_content"
+        android:layout_width="160dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="165dp"
+        android:text="@string/login_button"
+        android:textColor="@android:color/white"/>
+
+    <Button
+        android:background="@color/colorPrimary"
+        android:id="@+id/registerLogin"
+        android:layout_below="@+id/passwordLoginField"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="60dp"
+        android:layout_toEndOf="@+id/A"
+        android:layout_width="160dp"
+        android:text="@string/register_button"
+        android:textColor="@android:color/white"/>
+
+</RelativeLayout>
