@@ -13,6 +13,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -23,6 +24,7 @@ public class RegisterActivity extends AppCompatActivity
     EditText firstName, lastName, email, password;
     FirebaseAuth authentication;
     FirebaseDatabase database = FirebaseDatabase.getInstance();
+    FirebaseUser databaseUser;
     int id;
     Intent intent;
     String firstNameString, lastNameString, emailString, passwordString;
@@ -34,7 +36,7 @@ public class RegisterActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
 
-        databaseUsers = database.getReference("Users");
+        databaseUsers = database.getReference("users");
 
         authentication = FirebaseAuth.getInstance();
 
@@ -50,34 +52,44 @@ public class RegisterActivity extends AppCompatActivity
             @Override
             public void onClick(View view)
             {
-                authentication.createUserWithEmailAndPassword(emailString, passwordString).addOnCompleteListener(new OnCompleteListener<AuthResult>()
+                firstNameString = firstName.getText().toString();
+                lastNameString = lastName.getText().toString();
+                emailString = email.getText().toString();
+                passwordString = password.getText().toString();
+
+                if (!emailString.equals("") && !passwordString.equals(""))
                 {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task)
+                    authentication.createUserWithEmailAndPassword(emailString, passwordString).addOnCompleteListener(new OnCompleteListener<AuthResult>()
                     {
-                        if(task.isSuccessful())
+                        @Override
+                        public void onComplete(@NonNull Task<AuthResult> task)
                         {
-                            firstNameString = firstName.getText().toString();
-                            lastNameString = lastName.getText().toString();
-                            emailString = email.getText().toString();
-                            passwordString = password.getText().toString();
+                            if(task.isSuccessful())
+                            {
+                                user = new User(firstNameString, lastNameString, emailString, passwordString);
 
-                            user = new User(firstNameString, lastNameString, emailString, passwordString);
+                                databaseUser = authentication.getCurrentUser();
 
-                            id = user.getAthleteId();
+                                id = user.getAthleteId();
 
-                            databaseUsers.child("A"+id).setValue(user);
+                                databaseUsers.child(databaseUser.getUid()).setValue(user);
 
-                            intent = new Intent(RegisterActivity.this, LoginActivity.class);
-                            startActivity(intent);
-                            Toast.makeText(getApplicationContext(),"Registration Complete. Your ID is "+id, Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getApplicationContext(),"Registration Complete. Your ID is "+id, Toast.LENGTH_SHORT).show();
+
+                                intent = new Intent(RegisterActivity.this, LoginActivity.class);
+                                startActivity(intent);
+                            }
+                            else
+                            {
+                                Toast.makeText(getApplicationContext(),"Registration Unsuccessful", Toast.LENGTH_SHORT).show();
+                            }
                         }
-                        else
-                        {
-                            Toast.makeText(getApplicationContext(),"Registration Unsuccessful", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
+                    });
+                }
+                else
+                {
+                    Toast.makeText(getApplicationContext(),"Fields empty", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }

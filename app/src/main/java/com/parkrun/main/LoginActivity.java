@@ -8,13 +8,20 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 public class LoginActivity extends AppCompatActivity
 {
     Button loginButton, registerButton;
+    DatabaseReference databaseUsers;
     EditText athleteNumber, password;
+    FirebaseAuth authentication;
     FirebaseDatabase database = FirebaseDatabase.getInstance();
     Intent intent;
     String userString, passString;
@@ -31,7 +38,35 @@ public class LoginActivity extends AppCompatActivity
         athleteNumber = findViewById(R.id.athleteNumberLoginField);
         password = findViewById(R.id.passwordLoginField);
 
+        databaseUsers = FirebaseDatabase.getInstance().getReference("Users");
 
+        authentication = FirebaseAuth.getInstance();
+
+//        if (authentication.getCurrentUser() == null)
+//        {
+//
+//        }
+
+        databaseUsers.addListenerForSingleValueEvent(new ValueEventListener()
+        {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot)
+            {
+                Iterable<DataSnapshot> children = dataSnapshot.getChildren();
+
+                for (DataSnapshot child : children)
+                {
+                    User user = child.getValue(User.class);
+                    Toast.makeText(getApplicationContext(),user.getEmail(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError)
+            {
+
+            }
+        });
 
         loginButton.setOnClickListener(new View.OnClickListener()
         {
@@ -52,6 +87,7 @@ public class LoginActivity extends AppCompatActivity
                 }
             }
         });
+
         registerButton.setOnClickListener(new View.OnClickListener()
         {
             @Override

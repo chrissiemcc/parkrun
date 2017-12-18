@@ -7,6 +7,8 @@ public class User
     private int athleteId;
     private String  firstName, lastName, email, password;
 
+    public User(){}
+
     public User(String firstName, String lastName, String email, String password)
     {
         this.athleteId = generateId();
