@@ -13,22 +13,17 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 public class RegisterActivity extends AppCompatActivity
 {
-    Button registerButton;
     DatabaseReference databaseUsers;
     EditText firstName, lastName, email, password;
     FirebaseAuth authentication;
     FirebaseDatabase database = FirebaseDatabase.getInstance();
-    FirebaseUser databaseUser;
-    int id;
-    Intent intent;
-    String firstNameString, lastNameString, emailString, passwordString;
-    User user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -45,52 +40,63 @@ public class RegisterActivity extends AppCompatActivity
         email = findViewById(R.id.emailRegisterField);
         password = findViewById(R.id.passwordRegisterField);
 
-        registerButton = findViewById(R.id.registerSubmit);
+        Button registerButton = findViewById(R.id.registerSubmit);
 
         registerButton.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View view)
             {
-                firstNameString = firstName.getText().toString();
-                lastNameString = lastName.getText().toString();
-                emailString = email.getText().toString();
-                passwordString = password.getText().toString();
-
-                if (!emailString.equals("") && !passwordString.equals(""))
-                {
-                    authentication.createUserWithEmailAndPassword(emailString, passwordString).addOnCompleteListener(new OnCompleteListener<AuthResult>()
-                    {
-                        @Override
-                        public void onComplete(@NonNull Task<AuthResult> task)
-                        {
-                            if(task.isSuccessful())
-                            {
-                                user = new User(firstNameString, lastNameString, emailString, passwordString);
-
-                                databaseUser = authentication.getCurrentUser();
-
-                                id = user.getAthleteId();
-
-                                databaseUsers.child(databaseUser.getUid()).setValue(user);
-
-                                Toast.makeText(getApplicationContext(),"Registration Complete. Your ID is "+id, Toast.LENGTH_SHORT).show();
-
-                                intent = new Intent(RegisterActivity.this, LoginActivity.class);
-                                startActivity(intent);
-                            }
-                            else
-                            {
-                                Toast.makeText(getApplicationContext(),"Registration Unsuccessful", Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                    });
-                }
-                else
-                {
-                    Toast.makeText(getApplicationContext(),"Fields empty", Toast.LENGTH_SHORT).show();
-                }
+                createUser();
             }
         });
+    }
+
+    private void createUser()
+    {
+        final String firstNameString = firstName.getText().toString();
+        final String lastNameString = lastName.getText().toString();
+        final String emailString = email.getText().toString();
+        final String passwordString = password.getText().toString();
+
+        if (!emailString.equals("") && !passwordString.equals(""))
+        {
+            authentication.createUserWithEmailAndPassword(emailString, passwordString).addOnCompleteListener(new OnCompleteListener<AuthResult>()
+            {
+                @Override
+                public void onComplete(@NonNull Task<AuthResult> task)
+                {
+                    if(task.isSuccessful())
+                    {
+                        User user = new User(firstNameString, lastNameString, emailString, passwordString);
+
+                        FirebaseUser databaseUser = authentication.getCurrentUser();
+
+                        int id = user.getAthleteId();
+
+                        if (databaseUser != null)
+                        {
+                            databaseUsers.child(databaseUser.getUid()).setValue(user);
+                            Toast.makeText(getApplicationContext(),"Registration Complete. Your ID is "+id, Toast.LENGTH_SHORT).show();
+
+                            Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+                            startActivity(intent);
+                        }
+                    }
+                    else if (task.getException() instanceof FirebaseAuthUserCollisionException)
+                    {
+                        Toast.makeText(getApplicationContext(), "You are already registered", Toast.LENGTH_SHORT).show();
+                    }
+                    else
+                    {
+                        Toast.makeText(getApplicationContext(),task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+        }
+        else
+        {
+            Toast.makeText(getApplicationContext(),"Fields empty", Toast.LENGTH_SHORT).show();
+        }
     }
 }
