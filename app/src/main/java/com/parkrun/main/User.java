@@ -5,7 +5,7 @@ import java.util.Random;
 public class User
 {
     private int athleteId;
-    private String  firstName, lastName, email, password;
+    private String firstName, lastName, email, password;
 
     public User(){}
 

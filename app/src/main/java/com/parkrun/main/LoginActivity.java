@@ -18,13 +18,12 @@ import com.google.firebase.database.ValueEventListener;
 
 public class LoginActivity extends AppCompatActivity
 {
-    Button loginButton, registerButton;
     DatabaseReference databaseUsers;
-    EditText athleteNumber, password;
     FirebaseAuth authentication;
     FirebaseDatabase database = FirebaseDatabase.getInstance();
+    int athleteId;
     Intent intent;
-    String userString, passString;
+    String passString, correctPass;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -32,13 +31,13 @@ public class LoginActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        loginButton = findViewById(R.id.loginButton);
-        registerButton = findViewById(R.id.registerLogin);
+        final Button loginButton = findViewById(R.id.loginButton);
+        final Button registerButton = findViewById(R.id.registerLogin);
 
-        athleteNumber = findViewById(R.id.athleteNumberLoginField);
-        password = findViewById(R.id.passwordLoginField);
+        final EditText athleteNumber = findViewById(R.id.athleteNumberLoginField);
+        final EditText password = findViewById(R.id.passwordLoginField);
 
-        databaseUsers = FirebaseDatabase.getInstance().getReference("Users");
+        databaseUsers = FirebaseDatabase.getInstance().getReference("users");
 
         authentication = FirebaseAuth.getInstance();
 
@@ -47,44 +46,50 @@ public class LoginActivity extends AppCompatActivity
 //
 //        }
 
-        databaseUsers.addListenerForSingleValueEvent(new ValueEventListener()
-        {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot)
-            {
-                Iterable<DataSnapshot> children = dataSnapshot.getChildren();
 
-                for (DataSnapshot child : children)
-                {
-                    User user = child.getValue(User.class);
-                    Toast.makeText(getApplicationContext(),user.getEmail(), Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError)
-            {
-
-            }
-        });
 
         loginButton.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View view)
             {
-                userString = athleteNumber.getText().toString();
+                athleteId = Integer.parseInt(athleteNumber.getText().toString());
                 passString = password.getText().toString();
 
-                if(userString.equals("123") && passString.equals("pass"))
+                databaseUsers.addListenerForSingleValueEvent(new ValueEventListener()
                 {
-                    intent = new Intent(LoginActivity.this, MainActivity.class);
-                    startActivity(intent);
-                }
-                else
-                {
-                    Toast.makeText(getApplicationContext(),"Wrong details", Toast.LENGTH_SHORT).show();
-                }
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot)
+                    {
+                        Iterable<DataSnapshot> children = dataSnapshot.getChildren();
+
+                        for (DataSnapshot child : children)
+                        {
+                            User user = child.getValue(User.class);
+                            if (user.getAthleteId() == athleteId)
+                            {
+                                correctPass = user.getPassword();
+
+                                if(passString.equals(correctPass))
+                                {
+                                    intent = new Intent(LoginActivity.this, MainActivity.class);
+                                    startActivity(intent);
+                                    break;
+                                }
+                                else
+                                {
+                                    Toast.makeText(getApplicationContext(),"Wrong password", Toast.LENGTH_SHORT).show();
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    @Override
+                    public void onCancelled(DatabaseError databaseError)
+                    {
+
+                    }
+                });
             }
         });
 
