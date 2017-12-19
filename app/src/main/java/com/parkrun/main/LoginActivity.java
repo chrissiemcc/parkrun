@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -21,8 +23,6 @@ import com.google.firebase.database.ValueEventListener;
 
 public class LoginActivity extends AppCompatActivity
 {
-    DatabaseReference databaseUsers;
-    FirebaseAuth authentication;
     int athleteId;
     Intent intent;
     String passString, correctPass;
@@ -35,23 +35,12 @@ public class LoginActivity extends AppCompatActivity
 
         final Button loginButton = findViewById(R.id.loginButton);
         final Button registerButton = findViewById(R.id.registerLogin);
+        loginButton.setEnabled(false);
 
         final EditText athleteNumber = findViewById(R.id.athleteNumberLoginField);
         final EditText password = findViewById(R.id.passwordLoginField);
 
-        databaseUsers = FirebaseDatabase.getInstance().getReference("users");
-
-        authentication = FirebaseAuth.getInstance();
-
-//        if (authentication.getCurrentUser() != null)
-//        {
-//            Toast.makeText(getApplicationContext(),authentication.getCurrentUser().getEmail(), Toast.LENGTH_SHORT).show();
-//            authentication.signOut();
-//        }
-//        else
-//        {
-//            Toast.makeText(getApplicationContext(),"null user", Toast.LENGTH_SHORT).show();
-//        }
+        final DatabaseReference databaseUsers = FirebaseDatabase.getInstance().getReference("users");
 
         loginButton.setOnClickListener(new View.OnClickListener()
         {
@@ -72,7 +61,7 @@ public class LoginActivity extends AppCompatActivity
                         {
                             User user = child.getValue(User.class);
 
-                            if (user != null && user.getAthleteId() == athleteId)
+                            if (user != null && user.getAthleteId() == LoginActivity.this.athleteId)
                             {
                                 correctPass = user.getPassword();
 
@@ -107,10 +96,40 @@ public class LoginActivity extends AppCompatActivity
                 startActivity(intent);
             }
         });
+
+        athleteNumber.addTextChangedListener(new TextWatcher()
+        {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2)
+            {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2)
+            {
+                if(athleteNumber.toString().equals(""))
+                {
+                    loginButton.setEnabled(false);
+                }
+                else
+                {
+                    loginButton.setEnabled(true);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable)
+            {
+
+            }
+        });
     }
 
     private void signIn(String email, String password)
     {
+        FirebaseAuth authentication = FirebaseAuth.getInstance();
+
         authentication.signInWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>()
         {
             @Override

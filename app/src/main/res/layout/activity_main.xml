@@ -16,4 +16,13 @@
         android:textColor="#8E8C13"
         android:textSize="36sp"
         android:textStyle="bold"/>
+
+    <Button
+        android:id="@+id/btnSignOut"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="35dp"
+        android:text="@string/sign_out" />
 </RelativeLayout>
