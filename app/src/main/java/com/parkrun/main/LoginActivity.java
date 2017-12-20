@@ -100,15 +100,15 @@ public class LoginActivity extends AppCompatActivity
         athleteNumber.addTextChangedListener(new TextWatcher()
         {
             @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2)
+            public void beforeTextChanged(CharSequence charSequence, int start, int before, int count)
             {
 
             }
 
             @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2)
+            public void onTextChanged(CharSequence charSequence, int start, int before, int count)
             {
-                if(athleteNumber.toString().equals(""))
+                if(athleteNumber.getText().toString().equals(""))
                 {
                     loginButton.setEnabled(false);
                 }
