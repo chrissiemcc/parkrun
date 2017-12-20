@@ -6,7 +6,7 @@
     tools:context="com.parkrun.main.RegisterActivity">
 
     <EditText
-        android:hint="First Name"
+        android:hint="@string/first_name_registerHint"
         android:id="@+id/firstNameRegisterField"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -16,7 +16,7 @@
         android:inputType="textPersonName"/>
 
     <EditText
-        android:hint="Last Name"
+        android:hint="@string/last_name_registerHint"
         android:id="@+id/lastNameRegisterField"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -26,7 +26,7 @@
         android:inputType="textPersonName"/>
 
     <EditText
-        android:hint="Email"
+        android:hint="@string/email_registerHint"
         android:id="@+id/emailRegisterField"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -36,7 +36,7 @@
         android:inputType="textEmailAddress"/>
 
     <EditText
-        android:hint="Password"
+        android:hint="@string/password_hint"
         android:id="@+id/passwordRegisterField"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

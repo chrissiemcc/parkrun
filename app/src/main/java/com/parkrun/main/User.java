@@ -20,27 +20,27 @@ public class User
 
     public int getAthleteId()
     {
-        return athleteId;
+        return this.athleteId;
     }
 
     public String getFirstName()
     {
-        return firstName;
+        return this.firstName;
     }
 
     public String getLastName()
     {
-        return lastName;
+        return this.lastName;
     }
 
     public String getEmail()
     {
-        return email;
+        return this.email;
     }
 
     public String getPassword()
     {
-        return password;
+        return this.password;
     }
 
     private int generateId()

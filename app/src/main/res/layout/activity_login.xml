@@ -16,41 +16,41 @@
         android:textSize="36sp"/>
 
     <TextView
-        android:id="@+id/A"
-        android:layout_above="@+id/passwordLoginField"
+        android:id="@+id/athleteNumberPrefix"
+        android:layout_above="@+id/txtPasswordLogin"
         android:layout_height="wrap_content"
         android:layout_marginBottom="5dp"
-        android:layout_toStartOf="@+id/athleteNumberLoginField"
+        android:layout_toStartOf="@+id/txtAthleteNumberLogin"
         android:layout_width="wrap_content"
         android:text="@string/athleteLetter"
         android:textSize="24sp"/>
 
     <EditText
         android:ems="10"
-        android:hint="Athlete ID"
-        android:id="@+id/athleteNumberLoginField"
+        android:hint="@string/athlete_id_loginHint"
+        android:id="@+id/txtAthleteNumberLogin"
         android:inputType="number"
-        android:layout_above="@+id/passwordLoginField"
-        android:layout_alignEnd="@+id/passwordLoginField"
-        android:layout_alignStart="@+id/passwordLoginField"
+        android:layout_above="@+id/txtPasswordLogin"
+        android:layout_alignEnd="@+id/txtPasswordLogin"
+        android:layout_alignStart="@+id/txtPasswordLogin"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"/>
 
     <EditText
         android:ems="10"
-        android:hint="Password"
-        android:id="@+id/passwordLoginField"
+        android:hint="@string/password_hint"
+        android:id="@+id/txtPasswordLogin"
         android:inputType="textPassword"
-        android:layout_above="@+id/loginButton"
-        android:layout_alignEnd="@+id/loginButton"
-        android:layout_alignStart="@+id/loginButton"
+        android:layout_above="@+id/btnLogin"
+        android:layout_alignEnd="@+id/btnLogin"
+        android:layout_alignStart="@+id/btnLogin"
         android:layout_height="wrap_content"
         android:layout_marginBottom="80dp"
         android:layout_width="wrap_content"/>
 
     <Button
         android:background="@color/colorPrimary"
-        android:id="@+id/loginButton"
+        android:id="@+id/btnLogin"
         android:layout_height="wrap_content"
         android:layout_width="160dp"
         android:layout_alignParentBottom="true"
@@ -61,11 +61,11 @@
 
     <Button
         android:background="@color/colorPrimary"
-        android:id="@+id/registerLogin"
-        android:layout_below="@+id/passwordLoginField"
+        android:id="@+id/btnRegister"
+        android:layout_below="@+id/txtPasswordLogin"
         android:layout_height="wrap_content"
         android:layout_marginTop="60dp"
-        android:layout_toEndOf="@+id/A"
+        android:layout_toEndOf="@+id/athleteNumberPrefix"
         android:layout_width="160dp"
         android:text="@string/register_button"
         android:textColor="@android:color/white"/>

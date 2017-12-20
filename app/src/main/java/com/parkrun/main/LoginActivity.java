@@ -15,6 +15,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -33,12 +34,12 @@ public class LoginActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        final Button loginButton = findViewById(R.id.loginButton);
-        final Button registerButton = findViewById(R.id.registerLogin);
+        final Button loginButton = findViewById(R.id.btnLogin);
+        final Button registerButton = findViewById(R.id.btnRegister);
         loginButton.setEnabled(false);
 
-        final EditText athleteNumber = findViewById(R.id.athleteNumberLoginField);
-        final EditText password = findViewById(R.id.passwordLoginField);
+        final EditText athleteNumber = findViewById(R.id.txtAthleteNumberLogin);
+        final EditText password = findViewById(R.id.txtPasswordLogin);
 
         final DatabaseReference databaseUsers = FirebaseDatabase.getInstance().getReference("users");
 
@@ -129,6 +130,9 @@ public class LoginActivity extends AppCompatActivity
     private void signIn(String email, String password)
     {
         FirebaseAuth authentication = FirebaseAuth.getInstance();
+
+        authentication.getCurrentUser().delete();//stop the database authentication filling up with anonymous users
+
 
         authentication.signInWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>()
         {

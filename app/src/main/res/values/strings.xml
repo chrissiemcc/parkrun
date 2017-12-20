@@ -19,4 +19,9 @@
         completions."
     </string>
     <string name="sign_out">Sign Out</string>
+    <string name="athlete_id_loginHint">Athlete ID</string>
+    <string name="password_hint">Password</string>
+    <string name="email_registerHint">Email</string>
+    <string name="last_name_registerHint">Last Name</string>
+    <string name="first_name_registerHint">First Name</string>
 </resources>
