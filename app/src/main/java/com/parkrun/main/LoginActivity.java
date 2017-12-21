@@ -39,52 +39,13 @@ public class LoginActivity extends AppCompatActivity
         loginButton.setEnabled(false);
 
         final EditText athleteNumber = findViewById(R.id.txtAthleteNumberLogin);
-        final EditText password = findViewById(R.id.txtPasswordLogin);
-
-        final DatabaseReference databaseUsers = FirebaseDatabase.getInstance().getReference("users");
 
         loginButton.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View view)
             {
-                athleteId = Integer.parseInt(athleteNumber.getText().toString());
-                passString = password.getText().toString();
-
-                databaseUsers.addListenerForSingleValueEvent(new ValueEventListener()
-                {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot)
-                    {
-                        Iterable<DataSnapshot> children = dataSnapshot.getChildren();
-
-                        for (DataSnapshot child : children)
-                        {
-                            User user = child.getValue(User.class);
-
-                            if (user != null && user.getAthleteId() == LoginActivity.this.athleteId)
-                            {
-                                correctPass = user.getPassword();
-
-                                if(passString.equals(correctPass))
-                                {
-                                    signIn(user.getEmail(), user.getPassword());
-                                    break;
-                                }
-                                else
-                                {
-                                    Toast.makeText(getApplicationContext(),"Wrong password", Toast.LENGTH_SHORT).show();
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                    @Override
-                    public void onCancelled(DatabaseError databaseError)
-                    {
-
-                    }
-                });
+                login(athleteNumber);
             }
         });
 
@@ -127,27 +88,71 @@ public class LoginActivity extends AppCompatActivity
         });
     }
 
-    private void signIn(String email, String password)
+    private void login(EditText athleteNumber)
     {
-        FirebaseAuth authentication = FirebaseAuth.getInstance();
+        DatabaseReference databaseUsers = FirebaseDatabase.getInstance().getReference("users");
 
-        authentication.getCurrentUser().delete();//stop the database authentication filling up with anonymous users
+        EditText password = findViewById(R.id.txtPasswordLogin);
 
+        athleteId = Integer.parseInt(athleteNumber.getText().toString());
+        passString = password.getText().toString();
 
-        authentication.signInWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>()
+        databaseUsers.addListenerForSingleValueEvent(new ValueEventListener()
         {
             @Override
-            public void onComplete(@NonNull Task<AuthResult> task)
+            public void onDataChange(DataSnapshot dataSnapshot)
             {
-                if (task.isSuccessful())
+                Iterable<DataSnapshot> children = dataSnapshot.getChildren();
+
+                for (DataSnapshot child : children)
                 {
-                    intent = new Intent(LoginActivity.this, MainActivity.class);
-                    startActivity(intent);
+                    User user = child.getValue(User.class);
+
+                    if (user != null && user.getAthleteId() == LoginActivity.this.athleteId)
+                    {
+                        correctPass = user.getPassword();
+
+                        if(passString.equals(correctPass))
+                        {
+                            FirebaseAuth authentication = FirebaseAuth.getInstance();
+
+                            FirebaseUser databaseUser = authentication.getCurrentUser();
+
+                            if (databaseUser.isAnonymous())
+                            {
+                                databaseUser.delete();//stop the database authentication filling up with anonymous users
+                            }
+
+                            authentication.signInWithEmailAndPassword(user.getEmail(), correctPass).addOnCompleteListener(new OnCompleteListener<AuthResult>()
+                            {
+                                @Override
+                                public void onComplete(@NonNull Task<AuthResult> task)
+                                {
+                                    if (task.isSuccessful())
+                                    {
+                                        intent = new Intent(LoginActivity.this, MainActivity.class);
+                                        startActivity(intent);
+                                    }
+                                    else
+                                    {
+                                        Toast.makeText(getApplicationContext(),task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                            });
+                            break;
+                        }
+                        else
+                        {
+                            Toast.makeText(getApplicationContext(),"Wrong password", Toast.LENGTH_SHORT).show();
+                            break;
+                        }
+                    }
                 }
-                else
-                {
-                    Toast.makeText(getApplicationContext(),task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-                }
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError)
+            {
+
             }
         });
     }

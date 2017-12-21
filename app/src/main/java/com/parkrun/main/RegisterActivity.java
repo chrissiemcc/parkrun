@@ -61,6 +61,13 @@ public class RegisterActivity extends AppCompatActivity
 
         if (!emailString.equals("") && !passwordString.equals(""))
         {
+            final FirebaseUser[] databaseUser = {authentication.getCurrentUser()};
+
+            if (databaseUser[0].isAnonymous())
+            {
+                databaseUser[0].delete();//stop the database authentication filling up with anonymous users
+            }
+
             authentication.createUserWithEmailAndPassword(emailString, passwordString).addOnCompleteListener(new OnCompleteListener<AuthResult>()
             {
                 @Override
@@ -70,16 +77,16 @@ public class RegisterActivity extends AppCompatActivity
                     {
                         User user = new User(firstNameString, lastNameString, emailString, passwordString);
 
-                        FirebaseUser databaseUser = authentication.getCurrentUser();
+                        databaseUser[0] = authentication.getCurrentUser();
 
                         int id = user.getAthleteId();
 
-                        if (databaseUser != null)
+                        if (databaseUser[0] != null)
                         {
-                            databaseUsers.child(databaseUser.getUid()).setValue(user);
+                            databaseUsers.child(databaseUser[0].getUid()).setValue(user);
                             Toast.makeText(getApplicationContext(),"Registration Complete. Your ID is "+id, Toast.LENGTH_SHORT).show();
 
-                            Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+                            Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
                             startActivity(intent);
                         }
                     }
