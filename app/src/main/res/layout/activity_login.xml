@@ -1,19 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.parkrun.main.LoginActivity">
-
-    <TextView
-        android:gravity="center"
-        android:id="@+id/title"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:layout_height="wrap_content"
-        android:layout_width="match_parent"
-        android:text="@string/app_name"
-        android:textSize="36sp"/>
 
     <TextView
         android:id="@+id/athleteNumberPrefix"
@@ -45,7 +36,7 @@
         android:layout_alignEnd="@+id/btnLogin"
         android:layout_alignStart="@+id/btnLogin"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="80dp"
+        android:layout_marginBottom="40dp"
         android:layout_width="wrap_content"/>
 
     <Button
@@ -55,7 +46,7 @@
         android:layout_width="160dp"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="165dp"
+        android:layout_marginBottom="160dp"
         android:text="@string/login_button"
         android:textColor="@android:color/white"/>
 
@@ -69,5 +60,24 @@
         android:layout_width="160dp"
         android:text="@string/register_button"
         android:textColor="@android:color/white"/>
+
+    <ImageView
+        android:id="@+id/parkrun_title_login"
+        android:layout_above="@+id/txtAthleteNumberLogin"
+        android:layout_centerHorizontal="true"
+        android:layout_height="118dp"
+        android:layout_marginBottom="26dp"
+        android:layout_width="200dp"
+        android:scaleType="fitXY"
+        app:srcCompat="@drawable/parkrun_title" />
+
+    <ProgressBar
+        android:id="@+id/progressBar_login"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/btnLogin"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="13dp" />
 
 </RelativeLayout>

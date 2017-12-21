@@ -9,6 +9,7 @@ import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -24,10 +25,6 @@ import com.google.firebase.database.ValueEventListener;
 
 public class LoginActivity extends AppCompatActivity
 {
-    int athleteId;
-    Intent intent;
-    String passString, correctPass;
-
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -39,13 +36,17 @@ public class LoginActivity extends AppCompatActivity
         loginButton.setEnabled(false);
 
         final EditText athleteNumber = findViewById(R.id.txtAthleteNumberLogin);
+        final EditText password = findViewById(R.id.txtPasswordLogin);
+
+        final ProgressBar progressBar = findViewById(R.id.progressBar_login);
+        progressBar.setVisibility(View.INVISIBLE);
 
         loginButton.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View view)
             {
-                login(athleteNumber);
+                login(athleteNumber, password, loginButton, registerButton, progressBar);
             }
         });
 
@@ -54,7 +55,7 @@ public class LoginActivity extends AppCompatActivity
             @Override
             public void onClick(View view)
             {
-                intent = new Intent(LoginActivity.this, RegisterActivity.class);
+                Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
                 startActivity(intent);
             }
         });
@@ -70,7 +71,7 @@ public class LoginActivity extends AppCompatActivity
             @Override
             public void onTextChanged(CharSequence charSequence, int start, int before, int count)
             {
-                if(athleteNumber.getText().toString().equals(""))
+                if(athleteNumber.getText().toString().equals("") && password.getText().toString().equals(""))
                 {
                     loginButton.setEnabled(false);
                 }
@@ -88,14 +89,20 @@ public class LoginActivity extends AppCompatActivity
         });
     }
 
-    private void login(EditText athleteNumber)
+    private void login(EditText athleteNumber, EditText password, final Button loginButton, final Button registerButton, final ProgressBar progressBar)
     {
-        DatabaseReference databaseUsers = FirebaseDatabase.getInstance().getReference("users");
+        final int athleteId;
+        final String passString;
+        final String[] correctPass = new String[1];
 
-        EditText password = findViewById(R.id.txtPasswordLogin);
+        DatabaseReference databaseUsers = FirebaseDatabase.getInstance().getReference("users");
 
         athleteId = Integer.parseInt(athleteNumber.getText().toString());
         passString = password.getText().toString();
+        loginButton.setVisibility(View.INVISIBLE);
+        registerButton.setVisibility(View.INVISIBLE);
+
+        progressBar.setVisibility(View.VISIBLE);
 
         databaseUsers.addListenerForSingleValueEvent(new ValueEventListener()
         {
@@ -108,11 +115,11 @@ public class LoginActivity extends AppCompatActivity
                 {
                     User user = child.getValue(User.class);
 
-                    if (user != null && user.getAthleteId() == LoginActivity.this.athleteId)
+                    if (user != null && user.getAthleteId() == athleteId)
                     {
-                        correctPass = user.getPassword();
+                        correctPass[0] = user.getPassword();
 
-                        if(passString.equals(correctPass))
+                        if(passString.equals(correctPass[0]))
                         {
                             FirebaseAuth authentication = FirebaseAuth.getInstance();
 
@@ -123,14 +130,14 @@ public class LoginActivity extends AppCompatActivity
                                 databaseUser.delete();//stop the database authentication filling up with anonymous users
                             }
 
-                            authentication.signInWithEmailAndPassword(user.getEmail(), correctPass).addOnCompleteListener(new OnCompleteListener<AuthResult>()
+                            authentication.signInWithEmailAndPassword(user.getEmail(), correctPass[0]).addOnCompleteListener(new OnCompleteListener<AuthResult>()
                             {
                                 @Override
                                 public void onComplete(@NonNull Task<AuthResult> task)
                                 {
                                     if (task.isSuccessful())
                                     {
-                                        intent = new Intent(LoginActivity.this, MainActivity.class);
+                                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                                         startActivity(intent);
                                     }
                                     else
@@ -144,6 +151,10 @@ public class LoginActivity extends AppCompatActivity
                         else
                         {
                             Toast.makeText(getApplicationContext(),"Wrong password", Toast.LENGTH_SHORT).show();
+
+                            loginButton.setVisibility(View.VISIBLE);
+                            registerButton.setVisibility(View.VISIBLE);
+                            progressBar.setVisibility(View.INVISIBLE);
                             break;
                         }
                     }

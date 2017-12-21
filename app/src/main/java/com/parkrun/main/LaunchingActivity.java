@@ -24,16 +24,18 @@ public class LaunchingActivity extends AppCompatActivity
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
+        Intent intent;
+
         if (user != null && !user.isAnonymous())
         {
-            Intent intent = new Intent(LaunchingActivity.this, MainActivity.class);
+            intent = new Intent(LaunchingActivity.this, MainActivity.class);
             startActivity(intent);
         }
         else
         {
             signInAnonymously(authentication);
 
-            Intent intent = new Intent(LaunchingActivity.this, LoginActivity.class);
+            intent = new Intent(LaunchingActivity.this, LoginActivity.class);
             startActivity(intent);
         }
         finish();
