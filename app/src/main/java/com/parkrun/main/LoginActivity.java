@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -31,12 +32,12 @@ public class LoginActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        final Button loginButton = findViewById(R.id.btnLogin);
-        final Button registerButton = findViewById(R.id.btnRegister);
+        final Button loginButton = findViewById(R.id.btnLogin),
+        registerButton = findViewById(R.id.btnRegister);
         loginButton.setEnabled(false);
 
-        final EditText athleteNumber = findViewById(R.id.txtAthleteNumberLogin);
-        final EditText password = findViewById(R.id.txtPasswordLogin);
+        final EditText athleteNumber = findViewById(R.id.txtAthleteNumberLogin),
+        password = findViewById(R.id.txtPasswordLogin);
 
         final ProgressBar progressBar = findViewById(R.id.progressBar_login);
         progressBar.setVisibility(View.INVISIBLE);
@@ -71,7 +72,35 @@ public class LoginActivity extends AppCompatActivity
             @Override
             public void onTextChanged(CharSequence charSequence, int start, int before, int count)
             {
-                if(athleteNumber.getText().toString().equals("") && password.getText().toString().equals(""))
+                if(athleteNumber.getText().toString().equals("") || password.getText().toString().equals(""))
+                {
+                    loginButton.setEnabled(false);
+                }
+                else
+                {
+                    loginButton.setEnabled(true);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable)
+            {
+
+            }
+        });
+
+        password.addTextChangedListener(new TextWatcher()
+        {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int start, int before, int count)
+            {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int start, int before, int count)
+            {
+                if(athleteNumber.getText().toString().equals("") || password.getText().toString().equals(""))
                 {
                     loginButton.setEnabled(false);
                 }
@@ -89,22 +118,21 @@ public class LoginActivity extends AppCompatActivity
         });
     }
 
-    private void login(EditText athleteNumber, EditText password, final Button loginButton, final Button registerButton, final ProgressBar progressBar)
+    private void login(final EditText athleteNumber, final EditText password, final Button loginButton, final Button registerButton, final ProgressBar progressBar)
     {
-        final int athleteId;
-        final String passString;
-        final String[] correctPass = new String[1];
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("users");
 
-        DatabaseReference databaseUsers = FirebaseDatabase.getInstance().getReference("users");
+        final int athleteId = Integer.parseInt(athleteNumber.getText().toString().trim());
+        final String passString = password.getText().toString();
 
-        athleteId = Integer.parseInt(athleteNumber.getText().toString());
-        passString = password.getText().toString();
+        athleteNumber.setVisibility(View.INVISIBLE);
+        password.setVisibility(View.INVISIBLE);
         loginButton.setVisibility(View.INVISIBLE);
         registerButton.setVisibility(View.INVISIBLE);
 
         progressBar.setVisibility(View.VISIBLE);
 
-        databaseUsers.addListenerForSingleValueEvent(new ValueEventListener()
+        databaseReference.addListenerForSingleValueEvent(new ValueEventListener()
         {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot)
@@ -117,9 +145,9 @@ public class LoginActivity extends AppCompatActivity
 
                     if (user != null && user.getAthleteId() == athleteId)
                     {
-                        correctPass[0] = user.getPassword();
+                        String correctPass = user.getPassword();
 
-                        if(passString.equals(correctPass[0]))
+                        if(passString.equals(correctPass))
                         {
                             FirebaseAuth authentication = FirebaseAuth.getInstance();
 
@@ -127,18 +155,21 @@ public class LoginActivity extends AppCompatActivity
 
                             if (databaseUser.isAnonymous())
                             {
-                                databaseUser.delete();//stop the database authentication filling up with anonymous users
+                                databaseUser.delete(); //stop the database authentication filling up with anonymous users
                             }
 
-                            authentication.signInWithEmailAndPassword(user.getEmail(), correctPass[0]).addOnCompleteListener(new OnCompleteListener<AuthResult>()
+                            authentication.signInWithEmailAndPassword(user.getEmail(), correctPass).addOnCompleteListener(new OnCompleteListener<AuthResult>()
                             {
                                 @Override
                                 public void onComplete(@NonNull Task<AuthResult> task)
                                 {
                                     if (task.isSuccessful())
                                     {
+                                        Log.d("Testing", "Login was successful");
+
                                         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                                         startActivity(intent);
+                                        finish();
                                     }
                                     else
                                     {
@@ -152,6 +183,8 @@ public class LoginActivity extends AppCompatActivity
                         {
                             Toast.makeText(getApplicationContext(),"Wrong password", Toast.LENGTH_SHORT).show();
 
+                            athleteNumber.setVisibility(View.VISIBLE);
+                            password.setVisibility(View.VISIBLE);
                             loginButton.setVisibility(View.VISIBLE);
                             registerButton.setVisibility(View.VISIBLE);
                             progressBar.setVisibility(View.INVISIBLE);

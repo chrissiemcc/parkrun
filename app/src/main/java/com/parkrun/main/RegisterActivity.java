@@ -15,32 +15,19 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 public class RegisterActivity extends AppCompatActivity
 {
-    DatabaseReference databaseUsers;
-    EditText firstName, lastName, email, password;
-    FirebaseAuth authentication;
-    FirebaseDatabase database = FirebaseDatabase.getInstance();
-
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
 
-        databaseUsers = database.getReference("users");
-
-        authentication = FirebaseAuth.getInstance();
-
-        firstName = findViewById(R.id.firstNameRegisterField);
-        lastName = findViewById(R.id.lastNameRegisterField);
-        email = findViewById(R.id.emailRegisterField);
-        password = findViewById(R.id.passwordRegisterField);
-
-        Button registerButton = findViewById(R.id.registerSubmit);
+        Button registerButton = findViewById(R.id.btnRegisterSubmit);
 
         registerButton.setOnClickListener(new View.OnClickListener()
         {
@@ -54,56 +41,84 @@ public class RegisterActivity extends AppCompatActivity
 
     private void createUser()
     {
-        final String firstNameString = firstName.getText().toString();
-        final String lastNameString = lastName.getText().toString();
-        final String emailString = email.getText().toString();
-        final String passwordString = password.getText().toString();
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        final DatabaseReference databaseReference = database.getReference("users");
 
-        if (!emailString.equals("") && !passwordString.equals(""))
+        EditText firstName = findViewById(R.id.txtFirstNameRegister),
+        lastName = findViewById(R.id.txtLastNameRegister),
+        email = findViewById(R.id.txtEmailRegister),
+        password = findViewById(R.id.txtPasswordRegister),
+        passwordConfirm = findViewById(R.id.txtPasswordConfirmRegister);
+
+        final FirebaseAuth authentication = FirebaseAuth.getInstance();
+
+        final String firstNameString = firstName.getText().toString().trim(),
+        lastNameString = lastName.getText().toString().trim(),
+        emailString = email.getText().toString().trim(),
+        passwordString = password.getText().toString().trim(),
+        passwordConfirmString = passwordConfirm.getText().toString().trim();
+
+        if (!emailString.equals("") || !passwordString.equals("") || !firstNameString.equals("") || !lastNameString.equals(""))
         {
-            final FirebaseUser[] databaseUser = {authentication.getCurrentUser()};
-
-            if (databaseUser[0].isAnonymous())
+            if (passwordString.equals(passwordConfirmString))
             {
-                databaseUser[0].delete();//stop the database authentication filling up with anonymous users
-            }
+                final FirebaseUser[] databaseUser = {authentication.getCurrentUser()};
 
-            authentication.createUserWithEmailAndPassword(emailString, passwordString).addOnCompleteListener(new OnCompleteListener<AuthResult>()
-            {
-                @Override
-                public void onComplete(@NonNull Task<AuthResult> task)
+                if (databaseUser[0].isAnonymous())
                 {
-                    if(task.isSuccessful())
+                    databaseUser[0].delete();//stop the database authentication filling up with anonymous users
+                }
+
+                authentication.createUserWithEmailAndPassword(emailString, passwordString).addOnCompleteListener(new OnCompleteListener<AuthResult>()
+                {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task)
                     {
-                        User user = new User(firstNameString, lastNameString, emailString, passwordString);
-
-                        databaseUser[0] = authentication.getCurrentUser();
-
-                        int id = user.getAthleteId();
-
-                        if (databaseUser[0] != null)
+                        if(task.isSuccessful())
                         {
-                            databaseUsers.child(databaseUser[0].getUid()).setValue(user);
-                            Toast.makeText(getApplicationContext(),"Registration Complete. Your ID is "+id, Toast.LENGTH_SHORT).show();
+                            User user = new User(firstNameString, lastNameString, emailString, passwordString);
 
-                            Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
-                            startActivity(intent);
+                            databaseUser[0] = authentication.getCurrentUser();
+
+                            if (databaseUser[0] != null)
+                            {
+                                databaseReference.child(databaseUser[0].getUid()).setValue(user);
+
+                                UserProfileChangeRequest displayName = new UserProfileChangeRequest.Builder().setDisplayName(firstNameString).build();
+                                databaseUser[0].updateProfile(displayName);
+
+                                sendEmailVerification();
+
+                                // ALERT BOX FOR EMAIL VERIFICATION GOES HERE
+
+                                Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+                                startActivity(intent);
+                            }
+                        }
+                        else if (task.getException() instanceof FirebaseAuthUserCollisionException)
+                        {
+                            Toast.makeText(getApplicationContext(), "You are already registered", Toast.LENGTH_SHORT).show();
+                        }
+                        else
+                        {
+                            Toast.makeText(getApplicationContext(),task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                         }
                     }
-                    else if (task.getException() instanceof FirebaseAuthUserCollisionException)
-                    {
-                        Toast.makeText(getApplicationContext(), "You are already registered", Toast.LENGTH_SHORT).show();
-                    }
-                    else
-                    {
-                        Toast.makeText(getApplicationContext(),task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                }
-            });
+                });
+            }
+            else
+            {
+                Toast.makeText(getApplicationContext(),"Passwords do not match", Toast.LENGTH_SHORT).show();
+            }
         }
         else
         {
             Toast.makeText(getApplicationContext(),"Fields empty", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void sendEmailVerification()
+    {
+
     }
 }
