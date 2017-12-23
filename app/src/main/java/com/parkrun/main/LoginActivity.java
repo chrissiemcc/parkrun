@@ -11,7 +11,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -26,32 +25,38 @@ import com.google.firebase.database.ValueEventListener;
 
 public class LoginActivity extends AppCompatActivity
 {
+    Button btnLogin, btnRegister;
+    EditText txtAthleteNumberLogin, txtPasswordLogin;
+    ProgressBar progressBarLogin;
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        final Button loginButton = findViewById(R.id.btnLogin),
-        registerButton = findViewById(R.id.btnRegister);
-        loginButton.setEnabled(false);
+        btnLogin = findViewById(R.id.btnLogin);
+        btnRegister = findViewById(R.id.btnRegister);
 
-        final EditText athleteNumber = findViewById(R.id.txtAthleteNumberLogin),
-        password = findViewById(R.id.txtPasswordLogin);
+        txtAthleteNumberLogin = findViewById(R.id.txtAthleteNumberLogin);
+        txtPasswordLogin = findViewById(R.id.txtPasswordLogin);
 
-        final ProgressBar progressBar = findViewById(R.id.progressBar_login);
-        progressBar.setVisibility(View.INVISIBLE);
+        progressBarLogin = findViewById(R.id.progressBarLogin);
 
-        loginButton.setOnClickListener(new View.OnClickListener()
+        btnLogin.setEnabled(false);
+
+        progressBarLogin.setVisibility(View.INVISIBLE);
+
+        btnLogin.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View view)
             {
-                login(athleteNumber, password, loginButton, registerButton, progressBar);
+                login();
             }
         });
 
-        registerButton.setOnClickListener(new View.OnClickListener()
+        btnRegister.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View view)
@@ -61,7 +66,7 @@ public class LoginActivity extends AppCompatActivity
             }
         });
 
-        athleteNumber.addTextChangedListener(new TextWatcher()
+        txtAthleteNumberLogin.addTextChangedListener(new TextWatcher()
         {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int start, int before, int count)
@@ -72,13 +77,13 @@ public class LoginActivity extends AppCompatActivity
             @Override
             public void onTextChanged(CharSequence charSequence, int start, int before, int count)
             {
-                if(athleteNumber.getText().toString().equals("") || password.getText().toString().equals(""))
+                if(txtAthleteNumberLogin.getText().toString().equals("") || txtPasswordLogin.getText().toString().equals(""))
                 {
-                    loginButton.setEnabled(false);
+                    btnLogin.setEnabled(false);
                 }
                 else
                 {
-                    loginButton.setEnabled(true);
+                    btnLogin.setEnabled(true);
                 }
             }
 
@@ -89,7 +94,7 @@ public class LoginActivity extends AppCompatActivity
             }
         });
 
-        password.addTextChangedListener(new TextWatcher()
+        txtPasswordLogin.addTextChangedListener(new TextWatcher()
         {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int start, int before, int count)
@@ -100,13 +105,13 @@ public class LoginActivity extends AppCompatActivity
             @Override
             public void onTextChanged(CharSequence charSequence, int start, int before, int count)
             {
-                if(athleteNumber.getText().toString().equals("") || password.getText().toString().equals(""))
+                if(txtAthleteNumberLogin.getText().toString().equals("") || txtPasswordLogin.getText().toString().equals(""))
                 {
-                    loginButton.setEnabled(false);
+                    btnLogin.setEnabled(false);
                 }
                 else
                 {
-                    loginButton.setEnabled(true);
+                    btnLogin.setEnabled(true);
                 }
             }
 
@@ -118,25 +123,28 @@ public class LoginActivity extends AppCompatActivity
         });
     }
 
-    private void login(final EditText athleteNumber, final EditText password, final Button loginButton, final Button registerButton, final ProgressBar progressBar)
+    private void login()
     {
-        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("users");
+        final DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("users");
 
-        final int athleteId = Integer.parseInt(athleteNumber.getText().toString().trim());
-        final String passString = password.getText().toString();
+        final FirebaseAuth authentication = FirebaseAuth.getInstance();
 
-        athleteNumber.setVisibility(View.INVISIBLE);
-        password.setVisibility(View.INVISIBLE);
-        loginButton.setVisibility(View.INVISIBLE);
-        registerButton.setVisibility(View.INVISIBLE);
+        final FirebaseUser databaseUser = authentication.getCurrentUser();
 
-        progressBar.setVisibility(View.VISIBLE);
+        final int athleteId = Integer.parseInt(txtAthleteNumberLogin.getText().toString().trim());
+        final String passString = txtPasswordLogin.getText().toString();
+
+        final Utilities utilities = new Utilities();
+
+        loginFormVisibility(0);
 
         databaseReference.addListenerForSingleValueEvent(new ValueEventListener()
         {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot)
             {
+                boolean userFound = false;
+
                 Iterable<DataSnapshot> children = dataSnapshot.getChildren();
 
                 for (DataSnapshot child : children)
@@ -147,12 +155,8 @@ public class LoginActivity extends AppCompatActivity
                     {
                         String correctPass = user.getPassword();
 
-                        if(passString.equals(correctPass))
+                        if (passString.equals(correctPass))
                         {
-                            FirebaseAuth authentication = FirebaseAuth.getInstance();
-
-                            FirebaseUser databaseUser = authentication.getCurrentUser();
-
                             if (databaseUser.isAnonymous())
                             {
                                 databaseUser.delete(); //stop the database authentication filling up with anonymous users
@@ -173,24 +177,29 @@ public class LoginActivity extends AppCompatActivity
                                     }
                                     else
                                     {
-                                        Toast.makeText(getApplicationContext(),task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                                        utilities.getAlertDialog("Error", task.getException().getMessage(), LoginActivity.this);
+
+                                        loginFormVisibility(1);
                                     }
                                 }
                             });
-                            break;
                         }
                         else
                         {
-                            Toast.makeText(getApplicationContext(),"Wrong password", Toast.LENGTH_SHORT).show();
+                            utilities.getAlertDialog("Incorrect Password", "The password provided does not match the ID.", LoginActivity.this);
 
-                            athleteNumber.setVisibility(View.VISIBLE);
-                            password.setVisibility(View.VISIBLE);
-                            loginButton.setVisibility(View.VISIBLE);
-                            registerButton.setVisibility(View.VISIBLE);
-                            progressBar.setVisibility(View.INVISIBLE);
-                            break;
+                            loginFormVisibility(1);
                         }
+                        userFound = true;
+                        break;
                     }
+                }
+
+                if (!userFound)
+                {
+                    utilities.getAlertDialog("User Not Found", "The ID provided could not be found on the database.", LoginActivity.this);
+
+                    loginFormVisibility(1);
                 }
             }
             @Override
@@ -199,5 +208,30 @@ public class LoginActivity extends AppCompatActivity
 
             }
         });
+    }
+
+    private void loginFormVisibility(int choice)
+    {
+        switch (choice)
+        {
+            case 0:
+                txtAthleteNumberLogin.setVisibility(View.INVISIBLE);
+                txtPasswordLogin.setVisibility(View.INVISIBLE);
+                btnLogin.setVisibility(View.INVISIBLE);
+                btnRegister.setVisibility(View.INVISIBLE);
+
+                progressBarLogin.setVisibility(View.VISIBLE);
+                break;
+            case 1:
+                txtAthleteNumberLogin.setVisibility(View.VISIBLE);
+                txtPasswordLogin.setVisibility(View.VISIBLE);
+                btnLogin.setVisibility(View.VISIBLE);
+                btnRegister.setVisibility(View.VISIBLE);
+
+                progressBarLogin.setVisibility(View.INVISIBLE);
+                break;
+            default:
+                break;
+        }
     }
 }

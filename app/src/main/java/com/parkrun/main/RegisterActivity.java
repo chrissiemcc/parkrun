@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -21,6 +20,8 @@ import com.google.firebase.database.FirebaseDatabase;
 
 public class RegisterActivity extends AppCompatActivity
 {
+    final Utilities utilities = new Utilities();
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -68,7 +69,6 @@ public class RegisterActivity extends AppCompatActivity
                 {
                     databaseUser[0].delete();//stop the database authentication filling up with anonymous users
                 }
-
                 authentication.createUserWithEmailAndPassword(emailString, passwordString).addOnCompleteListener(new OnCompleteListener<AuthResult>()
                 {
                     @Override
@@ -86,39 +86,36 @@ public class RegisterActivity extends AppCompatActivity
 
                                 UserProfileChangeRequest displayName = new UserProfileChangeRequest.Builder().setDisplayName(firstNameString).build();
                                 databaseUser[0].updateProfile(displayName);
+                                databaseUser[0].sendEmailVerification();
+                                utilities.getAlertDialog("Email Verification", "A verification email has been sent", RegisterActivity.this);
 
-                                sendEmailVerification();
+                                authentication.signOut();
 
-                                // ALERT BOX FOR EMAIL VERIFICATION GOES HERE
-
-                                Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+                                Intent intent = new Intent(RegisterActivity.this, LaunchingActivity.class);
                                 startActivity(intent);
                             }
                         }
                         else if (task.getException() instanceof FirebaseAuthUserCollisionException)
                         {
-                            Toast.makeText(getApplicationContext(), "You are already registered", Toast.LENGTH_SHORT).show();
+                            utilities.getAlertDialog("User Exists", "This email address provided is already registered", RegisterActivity.this);
+                            authentication.signInAnonymously();
                         }
                         else
                         {
-                            Toast.makeText(getApplicationContext(),task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                            utilities.getAlertDialog("Error", task.getException().getMessage(), RegisterActivity.this);
+                            authentication.signInAnonymously();
                         }
                     }
                 });
             }
             else
             {
-                Toast.makeText(getApplicationContext(),"Passwords do not match", Toast.LENGTH_SHORT).show();
+                utilities.getAlertDialog("Password Error", "The two passwords provided do not match", RegisterActivity.this);
             }
         }
         else
         {
-            Toast.makeText(getApplicationContext(),"Fields empty", Toast.LENGTH_SHORT).show();
+            utilities.getAlertDialog("Fields Empty", "There are fields that still require to be filled", RegisterActivity.this);
         }
-    }
-
-    private void sendEmailVerification()
-    {
-
     }
 }

@@ -71,7 +71,7 @@
         app:srcCompat="@drawable/parkrun_title"/>
 
     <ProgressBar
-        android:id="@+id/progressBar_login"
+        android:id="@+id/progressBarLogin"
         android:layout_alignBottom="@+id/btnLogin"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="13dp"
