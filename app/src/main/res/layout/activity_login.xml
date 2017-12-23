@@ -7,43 +7,52 @@
     tools:context="com.parkrun.main.LoginActivity">
 
     <TextView
-        android:id="@+id/athleteNumberPrefix"
+        android:id="@+id/lblAthleteId"
         android:layout_above="@+id/txtPasswordLogin"
+        android:layout_alignBottom="@+id/txtAthleteIdLogin"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="5dp"
-        android:layout_toStartOf="@+id/txtAthleteNumberLogin"
+        android:layout_marginBottom="12dp"
+        android:layout_marginStart="27dp"
         android:layout_width="wrap_content"
-        android:text="@string/athleteLetter"
-        android:textSize="24sp"/>
+        android:text="@string/athleteId"
+        android:textSize="14sp"/>
+
+    <TextView
+        android:id="@+id/lblPassword"
+        android:layout_alignBottom="@+id/txtPasswordLogin"
+        android:layout_alignParentStart="true"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        android:layout_marginStart="27dp"
+        android:layout_width="wrap_content"
+        android:text="@string/password"
+        android:textSize="14sp"/>
 
     <EditText
         android:ems="10"
-        android:id="@+id/txtAthleteNumberLogin"
-        android:inputType="number"
+        android:id="@+id/txtAthleteIdLogin"
         android:layout_above="@+id/txtPasswordLogin"
-        android:layout_alignEnd="@+id/txtPasswordLogin"
         android:layout_alignStart="@+id/txtPasswordLogin"
         android:layout_height="wrap_content"
-        android:layout_width="wrap_content"/>
+        android:layout_width="wrap_content"
+        android:inputType="number"/>
 
     <EditText
         android:ems="10"
         android:id="@+id/txtPasswordLogin"
-        android:inputType="textPassword"
-        android:layout_above="@+id/btnLogin"
-        android:layout_alignEnd="@+id/btnLogin"
-        android:layout_alignStart="@+id/btnLogin"
+        android:layout_centerVertical="true"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="40dp"
-        android:layout_width="wrap_content"/>
+        android:layout_toEndOf="@+id/lblPassword"
+        android:layout_width="wrap_content"
+        android:inputType="textPassword"/>
 
     <Button
         android:background="@color/colorPrimary"
         android:id="@+id/btnLogin"
-        android:layout_alignParentBottom="true"
+        android:layout_below="@+id/txtPasswordLogin"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="160dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
         android:layout_width="160dp"
         android:text="@string/login_button"
         android:textColor="@android:color/white"/>
@@ -51,10 +60,10 @@
     <Button
         android:background="@color/colorPrimary"
         android:id="@+id/btnRegister"
-        android:layout_below="@+id/txtPasswordLogin"
+        android:layout_alignStart="@+id/btnLogin"
+        android:layout_below="@+id/btnLogin"
         android:layout_height="wrap_content"
-        android:layout_marginTop="60dp"
-        android:layout_toEndOf="@+id/athleteNumberPrefix"
+        android:layout_marginTop="15dp"
         android:layout_width="160dp"
         android:text="@string/register_button"
         android:textColor="@android:color/white"/>
@@ -62,7 +71,7 @@
     <ImageView
         android:contentDescription="@string/parkrun_title"
         android:id="@+id/parkrun_title_login"
-        android:layout_above="@+id/txtAthleteNumberLogin"
+        android:layout_above="@+id/txtAthleteIdLogin"
         android:layout_centerHorizontal="true"
         android:layout_height="118dp"
         android:layout_marginBottom="26dp"
@@ -72,9 +81,8 @@
 
     <ProgressBar
         android:id="@+id/progressBarLogin"
-        android:layout_alignBottom="@+id/btnLogin"
+        android:layout_alignTop="@+id/lblPassword"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="13dp"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"/>
 

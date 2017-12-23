@@ -11,6 +11,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -26,8 +27,9 @@ import com.google.firebase.database.ValueEventListener;
 public class LoginActivity extends AppCompatActivity
 {
     Button btnLogin, btnRegister;
-    EditText txtAthleteNumberLogin, txtPasswordLogin;
+    EditText txtAthleteIdLogin, txtPasswordLogin;
     ProgressBar progressBarLogin;
+    TextView lblAthleteId, lblPassword;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -38,10 +40,13 @@ public class LoginActivity extends AppCompatActivity
         btnLogin = findViewById(R.id.btnLogin);
         btnRegister = findViewById(R.id.btnRegister);
 
-        txtAthleteNumberLogin = findViewById(R.id.txtAthleteNumberLogin);
+        txtAthleteIdLogin = findViewById(R.id.txtAthleteIdLogin);
         txtPasswordLogin = findViewById(R.id.txtPasswordLogin);
 
         progressBarLogin = findViewById(R.id.progressBarLogin);
+
+        lblAthleteId = findViewById(R.id.lblAthleteId);
+        lblPassword = findViewById(R.id.lblPassword);
 
         btnLogin.setEnabled(false);
 
@@ -66,7 +71,7 @@ public class LoginActivity extends AppCompatActivity
             }
         });
 
-        txtAthleteNumberLogin.addTextChangedListener(new TextWatcher()
+        txtAthleteIdLogin.addTextChangedListener(new TextWatcher()
         {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int start, int before, int count)
@@ -77,7 +82,7 @@ public class LoginActivity extends AppCompatActivity
             @Override
             public void onTextChanged(CharSequence charSequence, int start, int before, int count)
             {
-                if(txtAthleteNumberLogin.getText().toString().equals("") || txtPasswordLogin.getText().toString().equals(""))
+                if(txtAthleteIdLogin.getText().toString().equals("") || txtPasswordLogin.getText().toString().equals(""))
                 {
                     btnLogin.setEnabled(false);
                 }
@@ -105,7 +110,7 @@ public class LoginActivity extends AppCompatActivity
             @Override
             public void onTextChanged(CharSequence charSequence, int start, int before, int count)
             {
-                if(txtAthleteNumberLogin.getText().toString().equals("") || txtPasswordLogin.getText().toString().equals(""))
+                if(txtAthleteIdLogin.getText().toString().equals("") || txtPasswordLogin.getText().toString().equals(""))
                 {
                     btnLogin.setEnabled(false);
                 }
@@ -131,7 +136,7 @@ public class LoginActivity extends AppCompatActivity
 
         final FirebaseUser databaseUser = authentication.getCurrentUser();
 
-        final int athleteId = Integer.parseInt(txtAthleteNumberLogin.getText().toString().trim());
+        final int athleteId = Integer.parseInt(txtAthleteIdLogin.getText().toString().trim());
         final String passString = txtPasswordLogin.getText().toString();
 
         final Utilities utilities = new Utilities();
@@ -215,18 +220,22 @@ public class LoginActivity extends AppCompatActivity
         switch (choice)
         {
             case 0:
-                txtAthleteNumberLogin.setVisibility(View.INVISIBLE);
+                txtAthleteIdLogin.setVisibility(View.INVISIBLE);
                 txtPasswordLogin.setVisibility(View.INVISIBLE);
                 btnLogin.setVisibility(View.INVISIBLE);
                 btnRegister.setVisibility(View.INVISIBLE);
+                lblAthleteId.setVisibility(View.INVISIBLE);
+                lblPassword.setVisibility(View.INVISIBLE);
 
                 progressBarLogin.setVisibility(View.VISIBLE);
                 break;
             case 1:
-                txtAthleteNumberLogin.setVisibility(View.VISIBLE);
+                txtAthleteIdLogin.setVisibility(View.VISIBLE);
                 txtPasswordLogin.setVisibility(View.VISIBLE);
                 btnLogin.setVisibility(View.VISIBLE);
                 btnRegister.setVisibility(View.VISIBLE);
+                lblAthleteId.setVisibility(View.VISIBLE);
+                lblPassword.setVisibility(View.VISIBLE);
 
                 progressBarLogin.setVisibility(View.INVISIBLE);
                 break;

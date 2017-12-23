@@ -86,6 +86,7 @@ public class RegisterActivity extends AppCompatActivity
 
                                 UserProfileChangeRequest displayName = new UserProfileChangeRequest.Builder().setDisplayName(firstNameString).build();
                                 databaseUser[0].updateProfile(displayName);
+
                                 databaseUser[0].sendEmailVerification();
                                 utilities.getAlertDialog("Email Verification", "A verification email has been sent", RegisterActivity.this);
 
