@@ -1,6 +1,6 @@
 package com.parkrun.main;
 
-import android.content.Intent;
+import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -20,7 +20,7 @@ import com.google.firebase.database.FirebaseDatabase;
 
 public class RegisterActivity extends AppCompatActivity
 {
-    final Utilities utilities = new Utilities();
+    final Utilities utilities = new Utilities(this);
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -88,12 +88,10 @@ public class RegisterActivity extends AppCompatActivity
                                 databaseUser[0].updateProfile(displayName);
 
                                 databaseUser[0].sendEmailVerification();
-                                utilities.getAlertDialog("Email Verification", "A verification email has been sent", RegisterActivity.this);
 
                                 authentication.signOut();
 
-                                Intent intent = new Intent(RegisterActivity.this, LaunchingActivity.class);
-                                startActivity(intent);
+                                utilities.getAlertDialog("Email Verification", "A verification email has been sent. Your ID is " + user.getAthleteId(), RegisterActivity.this, LoginActivity.class);
                             }
                         }
                         else if (task.getException() instanceof FirebaseAuthUserCollisionException)

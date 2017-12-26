@@ -167,27 +167,36 @@ public class LoginActivity extends AppCompatActivity
                                 databaseUser.delete(); //stop the database authentication filling up with anonymous users
                             }
 
-                            authentication.signInWithEmailAndPassword(user.getEmail(), correctPass).addOnCompleteListener(new OnCompleteListener<AuthResult>()
+                            if (databaseUser.isEmailVerified())
                             {
-                                @Override
-                                public void onComplete(@NonNull Task<AuthResult> task)
+                                authentication.signInWithEmailAndPassword(user.getEmail(), correctPass).addOnCompleteListener(new OnCompleteListener<AuthResult>()
                                 {
-                                    if (task.isSuccessful())
+                                    @Override
+                                    public void onComplete(@NonNull Task<AuthResult> task)
                                     {
-                                        Log.d("Testing", "Login was successful");
+                                        if (task.isSuccessful())
+                                        {
+                                            Log.d("Testing", "Login was successful");
 
-                                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                                        startActivity(intent);
-                                        finish();
-                                    }
-                                    else
-                                    {
-                                        utilities.getAlertDialog("Error", task.getException().getMessage(), LoginActivity.this);
+                                            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                            startActivity(intent);
+                                            finish();
+                                        }
+                                        else
+                                        {
+                                            utilities.getAlertDialog("Error", task.getException().getMessage(), LoginActivity.this);
 
-                                        loginFormVisibility(1);
+                                            loginFormVisibility(1);
+                                        }
                                     }
-                                }
-                            });
+                                });
+                            }
+                            else
+                            {
+                                utilities.getAlertDialog("Email Verification", "The email for this user has not yet been verified.", LoginActivity.this);
+
+                                loginFormVisibility(1);
+                            }
                         }
                         else
                         {

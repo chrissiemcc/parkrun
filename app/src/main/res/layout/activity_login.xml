@@ -12,7 +12,7 @@
         android:layout_alignBottom="@+id/txtAthleteIdLogin"
         android:layout_height="wrap_content"
         android:layout_marginBottom="12dp"
-        android:layout_marginStart="27dp"
+        android:layout_marginStart="40dp"
         android:layout_width="wrap_content"
         android:text="@string/athleteId"
         android:textSize="14sp"/>
@@ -23,7 +23,7 @@
         android:layout_alignParentStart="true"
         android:layout_height="wrap_content"
         android:layout_marginBottom="12dp"
-        android:layout_marginStart="27dp"
+        android:layout_marginStart="40dp"
         android:layout_width="wrap_content"
         android:text="@string/password"
         android:textSize="14sp"/>
