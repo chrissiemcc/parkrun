@@ -148,9 +148,9 @@ public class LoginActivity extends AppCompatActivity
             @Override
             public void onDataChange(DataSnapshot dataSnapshot)
             {
-                boolean userFound = false;
-
                 Iterable<DataSnapshot> children = dataSnapshot.getChildren();
+
+                boolean userFound = false;
 
                 for (DataSnapshot child : children)
                 {
@@ -158,60 +158,55 @@ public class LoginActivity extends AppCompatActivity
 
                     if (user != null && user.getAthleteId() == athleteId)
                     {
-                        String correctPass = user.getPassword();
-
-                        if (passString.equals(correctPass))
-                        {
-                            if (databaseUser.isAnonymous())
-                            {
-                                databaseUser.delete(); //stop the database authentication filling up with anonymous users
-                            }
-
-                            if (databaseUser.isEmailVerified())
-                            {
-                                authentication.signInWithEmailAndPassword(user.getEmail(), correctPass).addOnCompleteListener(new OnCompleteListener<AuthResult>()
-                                {
-                                    @Override
-                                    public void onComplete(@NonNull Task<AuthResult> task)
-                                    {
-                                        if (task.isSuccessful())
-                                        {
-                                            Log.d("Testing", "Login was successful");
-
-                                            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                                            startActivity(intent);
-                                            finish();
-                                        }
-                                        else
-                                        {
-                                            utilities.getAlertDialog("Error", task.getException().getMessage(), LoginActivity.this);
-
-                                            loginFormVisibility(1);
-                                        }
-                                    }
-                                });
-                            }
-                            else
-                            {
-                                utilities.getAlertDialog("Email Verification", "The email for this user has not yet been verified.", LoginActivity.this);
-
-                                loginFormVisibility(1);
-                            }
-                        }
-                        else
-                        {
-                            utilities.getAlertDialog("Incorrect Password", "The password provided does not match the ID.", LoginActivity.this);
-
-                            loginFormVisibility(1);
-                        }
                         userFound = true;
+                        //if (databaseUser.isEmailVerified())
+                        //{
+                            authentication.signInWithEmailAndPassword(user.getEmail(), passString).addOnCompleteListener(new OnCompleteListener<AuthResult>()
+                            {
+                                @Override
+                                public void onComplete(@NonNull Task<AuthResult> task)
+                                {
+                                    if (task.isSuccessful())
+                                    {
+                                        Log.d("Testing", "Login was successful");
+
+                                        if (databaseUser.isAnonymous())
+                                        {
+                                            databaseUser.delete(); //stop the database authentication filling up with anonymous users
+                                        }
+
+                                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                        startActivity(intent);
+                                        finish();
+                                    }
+                                    else if (!task.isSuccessful() && task.getException().getMessage().equals("The password is invalid or the user does not have a password."))
+                                    {
+                                        utilities.getAlertDialog("Password Invalid", "The password provided does not match the password for this ID", LoginActivity.this);
+
+                                        loginFormVisibility(1);
+                                    }
+                                    else
+                                    {
+                                        utilities.getAlertDialog("Error", task.getException().getMessage(), LoginActivity.this);
+
+                                        loginFormVisibility(1);
+                                    }
+                                }
+                            });
+                        //}
+                        //else
+                        //{
+                        //    utilities.getAlertDialog("Email Verification", "The email for this user has not yet been verified.", LoginActivity.this);
+
+                        //    loginFormVisibility(1);
+                        //}
                         break;
                     }
                 }
 
                 if (!userFound)
                 {
-                    utilities.getAlertDialog("User Not Found", "The ID provided could not be found on the database.", LoginActivity.this);
+                    utilities.getAlertDialog("User Not Found", "No user was found matching the ID provided", LoginActivity.this);
 
                     loginFormVisibility(1);
                 }

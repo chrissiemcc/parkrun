@@ -76,7 +76,7 @@ public class RegisterActivity extends AppCompatActivity
                     {
                         if(task.isSuccessful())
                         {
-                            User user = new User(firstNameString, lastNameString, emailString, passwordString);
+                            User user = new User(firstNameString, lastNameString, emailString);
 
                             databaseUser[0] = authentication.getCurrentUser();
 

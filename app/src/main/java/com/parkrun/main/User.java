@@ -5,17 +5,16 @@ import java.util.Random;
 public class User
 {
     private int athleteId;
-    private String firstName, lastName, email, password;
+    private String firstName, lastName, email;
 
     public User(){}
 
-    public User(String firstName, String lastName, String email, String password)
+    public User(String firstName, String lastName, String email)
     {
         this.athleteId = generateId();
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
-        this.password = password;
     }
 
     public int getAthleteId()
@@ -36,11 +35,6 @@ public class User
     public String getEmail()
     {
         return this.email;
-    }
-
-    public String getPassword()
-    {
-        return this.password;
     }
 
     private int generateId()
