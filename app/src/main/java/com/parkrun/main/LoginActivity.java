@@ -1,6 +1,8 @@
 package com.parkrun.main;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -28,6 +30,8 @@ public class LoginActivity extends AppCompatActivity
 {
     Button btnLogin, btnRegister;
     EditText txtAthleteIdLogin, txtPasswordLogin;
+    FirebaseAuth authentication;
+    FirebaseUser databaseUser;
     ProgressBar progressBarLogin;
     TextView lblAthleteId, lblPassword;
 
@@ -51,6 +55,21 @@ public class LoginActivity extends AppCompatActivity
         btnLogin.setEnabled(false);
 
         progressBarLogin.setVisibility(View.INVISIBLE);
+
+        authentication = FirebaseAuth.getInstance();
+
+        databaseUser = authentication.getCurrentUser();
+
+        SharedPreferences sharedPreferences = getSharedPreferences("authQuery", Context.MODE_PRIVATE);
+        if (databaseUser != null && !databaseUser.isAnonymous() && sharedPreferences.getBoolean("newUser", false))
+        {
+            authentication.signOut();
+            authentication.signInAnonymously();
+        }
+        // Firebase authentication requires that new users are signed in once created,
+        // this was not suitable for the mobile application so this is needed so that
+        // new users cannot close the app once an account has been created and access
+        // their account on reopening without having to verify their email or login.
 
         btnLogin.setOnClickListener(new View.OnClickListener()
         {
@@ -132,9 +151,9 @@ public class LoginActivity extends AppCompatActivity
     {
         final DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("users");
 
-        final FirebaseAuth authentication = FirebaseAuth.getInstance();
+        authentication = FirebaseAuth.getInstance();
 
-        final FirebaseUser databaseUser = authentication.getCurrentUser();
+        databaseUser = authentication.getCurrentUser();
 
         final int athleteId = Integer.parseInt(txtAthleteIdLogin.getText().toString().trim());
         final String passString = txtPasswordLogin.getText().toString();
@@ -159,54 +178,55 @@ public class LoginActivity extends AppCompatActivity
                     if (user != null && user.getAthleteId() == athleteId)
                     {
                         userFound = true;
-                        //if (databaseUser.isEmailVerified())
-                        //{
-                            authentication.signInWithEmailAndPassword(user.getEmail(), passString).addOnCompleteListener(new OnCompleteListener<AuthResult>()
+
+                        if (databaseUser.isAnonymous())
+                        {
+                            databaseUser.delete(); //stop the database authentication filling up with anonymous users
+                        }
+
+                        authentication.signInWithEmailAndPassword(user.getEmail(), passString).addOnCompleteListener(new OnCompleteListener<AuthResult>()
+                        {
+                            @Override
+                            public void onComplete(@NonNull Task<AuthResult> task)
                             {
-                                @Override
-                                public void onComplete(@NonNull Task<AuthResult> task)
+                                databaseUser = authentication.getCurrentUser();
+
+                                if (task.isSuccessful() && databaseUser.isEmailVerified())
                                 {
-                                    if (task.isSuccessful())
+                                    Log.d("Testing", "Login was successful");
+
+                                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                    startActivity(intent);
+                                    finish();
+                                }
+                                else
+                                {
+                                    if (!task.isSuccessful() && task.getException().getMessage().equals("The password is invalid or the user does not have a password."))
                                     {
-                                        Log.d("Testing", "Login was successful");
-
-                                        if (databaseUser.isAnonymous())
-                                        {
-                                            databaseUser.delete(); //stop the database authentication filling up with anonymous users
-                                        }
-
-                                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                                        startActivity(intent);
-                                        finish();
+                                        utilities.getAlertDialog("Password Invalid", "The password provided does not match the password for this ID.", LoginActivity.this);
                                     }
-                                    else if (!task.isSuccessful() && task.getException().getMessage().equals("The password is invalid or the user does not have a password."))
+                                    else if (task.isSuccessful() && !databaseUser.isEmailVerified())
                                     {
-                                        utilities.getAlertDialog("Password Invalid", "The password provided does not match the password for this ID", LoginActivity.this);
-
-                                        loginFormVisibility(1);
+                                        utilities.getAlertDialog("Email Not Verified", "This account has not yet been verified.", LoginActivity.this);
                                     }
                                     else
                                     {
                                         utilities.getAlertDialog("Error", task.getException().getMessage(), LoginActivity.this);
-
-                                        loginFormVisibility(1);
                                     }
-                                }
-                            });
-                        //}
-                        //else
-                        //{
-                        //    utilities.getAlertDialog("Email Verification", "The email for this user has not yet been verified.", LoginActivity.this);
 
-                        //    loginFormVisibility(1);
-                        //}
-                        break;
+                                    loginFormVisibility(1);
+
+                                    authentication.signInAnonymously();
+                                }
+                            }
+                        });
+                    break;
                     }
                 }
 
                 if (!userFound)
                 {
-                    utilities.getAlertDialog("User Not Found", "No user was found matching the ID provided", LoginActivity.this);
+                    utilities.getAlertDialog("User Not Found", "No user was found matching the ID provided.", LoginActivity.this);
 
                     loginFormVisibility(1);
                 }

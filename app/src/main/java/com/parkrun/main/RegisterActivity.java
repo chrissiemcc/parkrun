@@ -1,6 +1,7 @@
 package com.parkrun.main;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -69,6 +70,7 @@ public class RegisterActivity extends AppCompatActivity
                 {
                     databaseUser[0].delete();//stop the database authentication filling up with anonymous users
                 }
+
                 authentication.createUserWithEmailAndPassword(emailString, passwordString).addOnCompleteListener(new OnCompleteListener<AuthResult>()
                 {
                     @Override
@@ -89,7 +91,10 @@ public class RegisterActivity extends AppCompatActivity
 
                                 databaseUser[0].sendEmailVerification();
 
-                                authentication.signOut();
+                                SharedPreferences sharedPreferences = getSharedPreferences("authQuery", Context.MODE_PRIVATE);
+                                SharedPreferences.Editor editor = sharedPreferences.edit();
+                                editor.putBoolean("newUser", true);
+                                editor.apply();
 
                                 utilities.getAlertDialog("Email Verification", "A verification email has been sent. Your ID is " + user.getAthleteId(), RegisterActivity.this, LoginActivity.class);
                             }
