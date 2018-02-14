@@ -28,12 +28,12 @@ import com.google.firebase.database.ValueEventListener;
 
 public class LoginActivity extends AppCompatActivity
 {
-    Button btnLogin, btnRegister;
-    EditText txtAthleteIdLogin, txtPasswordLogin;
-    FirebaseAuth authentication;
-    FirebaseUser databaseUser;
-    ProgressBar progressBarLogin;
-    TextView lblAthleteId, lblPassword;
+    private Button btnLogin, btnRegister;
+    private EditText txtAthleteIdLogin, txtPasswordLogin;
+    private FirebaseAuth authentication;
+    private FirebaseUser databaseUser;
+    private ProgressBar progressBarLogin;
+    private TextView lblAthleteId, lblPassword;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)

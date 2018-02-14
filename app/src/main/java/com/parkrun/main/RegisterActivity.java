@@ -21,7 +21,7 @@ import com.google.firebase.database.FirebaseDatabase;
 
 public class RegisterActivity extends AppCompatActivity
 {
-    final Utilities utilities = new Utilities(this);
+    private final Utilities utilities = new Utilities(this);
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -97,6 +97,8 @@ public class RegisterActivity extends AppCompatActivity
                                 editor.apply();
 
                                 utilities.getAlertDialog("Email Verification", "A verification email has been sent. Your ID is " + user.getAthleteId(), RegisterActivity.this, LoginActivity.class);
+
+                                finish();
                             }
                         }
                         else if (task.getException() instanceof FirebaseAuthUserCollisionException)
