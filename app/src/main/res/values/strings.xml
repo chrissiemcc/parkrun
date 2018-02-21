@@ -1,13 +1,12 @@
 <resources>
     <string name="app_name">parkrun</string>
+
+    <!-- Strings related to login and register -->
     <string name="login_button">Login</string>
     <string name="register_button">Register</string>
     <string name="athleteId">Athlete ID:</string>
     <string name="password">Password:</string>
     <string name="btnSignUp">Sign up</string>
-
-    <!-- Strings related to login -->
-    <string name="sign_out">Sign Out</string>
     <string name="password_hint_confirm">Password Confirm</string>
     <string name="password_hint">Password</string>
     <string name="email_registerHint">Email</string>
@@ -16,11 +15,20 @@
     <string name="parkrun_logo">parkrun logo</string>
     <string name="parkrun_title">parkrun title</string>
 
-    <!-- Strings related to main -->
+    <!-- Strings related to main and navigation -->
     <string name="open">Open</string>
     <string name="close">Close</string>
-    <string name="my_account">My Account</string>
+    <string name="my_profile">My Profile</string>
     <string name="settings">Settings</string>
     <string name="log_out">Log Out</string>
     <string name="navigation_header">Header Navigation</string>
+    <string name="home">Home</string>
+    <string name="volunteer">Volunteer</string>
+    <string name="results">Results</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="parkrun_info">parkrun Info</string>
+    <string name="my_club">My Club</string>
+    <string name="my_parkrun">My parkrun</string>
 </resources>

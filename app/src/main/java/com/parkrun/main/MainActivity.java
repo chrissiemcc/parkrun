@@ -3,24 +3,30 @@ package com.parkrun.main;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
-import android.widget.TextView;
 import android.support.v7.widget.Toolbar;
+import android.widget.FrameLayout;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener
 {
     private ActionBarDrawerToggle actionBarDrawerToggle;
     private DrawerLayout drawerLayout;
+    private FrameLayout frameLayout;
+    private HomeFragment homeFragment;
+    private VolunteerFragment volunteerFragment;
+    private ResultsFragment resultsFragment;
+    private MyParkrunFragment parkrunFragment;
+    private MyClubFragment clubFragment;
+    private InfoFragment infoFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -28,39 +34,34 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Button signOutButton = findViewById(R.id.btnSignOut);
-
-        FirebaseUser databaseUser = FirebaseAuth.getInstance().getCurrentUser();
-
-        TextView textView = findViewById(R.id.textView);
-
-        String display = "Welcome " + databaseUser.getDisplayName() + "!";
-        textView.setText(display);
-
         Toolbar toolbar = findViewById(R.id.action_bar);
         toolbar.setTitle("Home");
         setSupportActionBar(toolbar);
-        //Initialises and sets the action bar
+        //Initialise and set the action bar
 
         drawerLayout = findViewById(R.id.drawerLayout);
         actionBarDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.open, R.string.close);
         drawerLayout.addDrawerListener(actionBarDrawerToggle);
         actionBarDrawerToggle.syncState();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        //Adds menu button to the action bar
+        //Add menu button to the action bar
 
         NavigationView navigationView = findViewById(R.id.navigation_view);
         navigationView.setNavigationItemSelectedListener(this);
-        //Initialises the navigation view and sets listener
+        //Initialise the navigation view and set listener
 
-        signOutButton.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View view)
-            {
-                signOut();
-            }
-        });
+        frameLayout = findViewById(R.id.main_frame);
+        homeFragment = new HomeFragment();
+        volunteerFragment = new VolunteerFragment();
+        resultsFragment = new ResultsFragment();
+        parkrunFragment = new MyParkrunFragment();
+        clubFragment = new MyClubFragment();
+        infoFragment = new InfoFragment();
+        //Initialise fragments for each nav page
+
+        setFragment(homeFragment);
+        navigationView.setCheckedItem(R.id.nav_home);
+        //Set default fragment and nav menu item
     }
 
     @Override
@@ -89,27 +90,68 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     {
         int id = item.getItemId();
 
-        Utilities utilities = new Utilities();
+        switch (id)
+        {
+            case R.id.nav_home:
+                getSupportActionBar().setTitle("Home");
+                setFragment(homeFragment);
+                break;
 
-        if(id == R.id.nav_account)
-        {
-            getSupportActionBar().setTitle("Account");
-            utilities.getAlertDialog("Account clicked!", "Account!", MainActivity.this);
-        }
-        else if(id == R.id.nav_settings)
-        {
-            getSupportActionBar().setTitle("Settings");
-            utilities.getAlertDialog("Settings clicked!", "Settings!", MainActivity.this);
-        }
-        else if(id == R.id.nav_logout)
-        {
-            signOut();
+            case R.id.nav_volunteer:
+                getSupportActionBar().setTitle("Volunteer");
+                setFragment(volunteerFragment);
+                break;
+
+            case R.id.nav_results:
+                getSupportActionBar().setTitle("Results");
+                setFragment(resultsFragment);
+                break;
+
+            case R.id.nav_my_parkrun:
+                getSupportActionBar().setTitle("My parkrun");
+                setFragment(parkrunFragment);
+                break;
+
+            case R.id.nav_my_club:
+                getSupportActionBar().setTitle("My Club");
+                setFragment(clubFragment);
+                break;
+
+            case R.id.nav_info:
+                getSupportActionBar().setTitle("parkrun Info");
+                setFragment(infoFragment);
+                break;
+
+            case R.id.nav_profile:
+
+                //new intent
+
+                break;
+
+            case R.id.nav_settings:
+
+                //new intent
+
+                break;
+
+            case R.id.nav_logout:
+                signOut();
+                break;
+
+            default:
+                return false;
         }
 
         DrawerLayout drawerLayout = findViewById(R.id.drawerLayout);
         drawerLayout.closeDrawer(GravityCompat.START);
 
         return true;
+    }
+
+    private void setFragment(Fragment fragment)
+    {
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        fragmentTransaction.replace(frameLayout.getId(), fragment).commit();
     }
 
     @Override

@@ -11,28 +11,20 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <include layout="@layout/actionbar"
+        <include layout="@layout/action_bar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
-        <TextView
-            android:gravity="center"
-            android:id="@+id/textView"
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
             android:layout_height="wrap_content"
-            android:layout_width="match_parent"
-            android:textColor="#8E8C13"
-            android:textSize="36sp"
-            android:textStyle="bold"/>
+            android:id="@+id/action_bar" />
 
-        <Button
-            android:id="@+id/btnSignOut"
-            android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="35dp"
-            android:layout_width="wrap_content"
-            android:text="@string/sign_out"/>
+        <FrameLayout
+            android:id="@+id/main_frame"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/action_bar">
+
+        </FrameLayout>
+
     </RelativeLayout>
 
     <android.support.design.widget.NavigationView

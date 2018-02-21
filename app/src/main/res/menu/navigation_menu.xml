@@ -1,15 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <group android:checkableBehavior="single">
-        <item android:id="@+id/nav_account"
-            android:icon="@mipmap/ic_account_circle_black_24dp"
-            android:title="@string/my_account"/>
+    <group
+        android:checkableBehavior="single"
+        android:id="@+id/parkrun_nav_group">
+        <item
+            android:id="@+id/nav_home"
+            android:icon="@mipmap/ic_home_black_24dp"
+            android:title="@string/home"/>
+        <item
+            android:id="@+id/nav_volunteer"
+            android:icon="@mipmap/ic_tag_faces_black_24dp"
+            android:title="@string/volunteer"/>
+        <item
+            android:id="@+id/nav_results"
+            android:icon="@mipmap/ic_directions_run_black_24dp"
+            android:title="@string/results"/>
+        <item
+            android:id="@+id/nav_my_parkrun"
+            android:icon="@mipmap/ic_my_parkrun_nav_24dp"
+            android:title="@string/my_parkrun"/>
+        <item
+            android:id="@+id/nav_my_club"
+            android:icon="@mipmap/ic_group_black_24dp"
+            android:title="@string/my_club"/>
+    </group>
 
-        <item android:id="@+id/nav_settings"
+    <group
+        android:checkableBehavior="single"
+        android:id="@+id/info_nav_group">
+        <item
+            android:id="@+id/nav_info"
+            android:icon="@mipmap/ic_help_black_24dp"
+            android:title="@string/parkrun_info"/>
+    </group>
+
+    <group
+        android:checkableBehavior="single"
+        android:id="@+id/account_nav_group">
+        <item
+            android:id="@+id/nav_profile"
+            android:icon="@mipmap/ic_account_circle_black_24dp"
+            android:title="@string/my_profile"/>
+        <item
+            android:id="@+id/nav_settings"
             android:icon="@mipmap/ic_settings_black_24dp"
             android:title="@string/settings"/>
-
-        <item android:id="@+id/nav_logout"
+        <item
+            android:id="@+id/nav_logout"
             android:icon="@mipmap/ic_exit_to_app_black_24dp"
             android:title="@string/log_out"/>
     </group>
