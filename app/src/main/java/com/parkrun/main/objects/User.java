@@ -1,4 +1,4 @@
-package com.parkrun.main;
+package com.parkrun.main.objects;
 
 import java.util.Random;
 
@@ -7,7 +7,10 @@ public class User
     private int athleteId;
     private String firstName, lastName, email;
 
-    public User(){}
+    public User()
+    {
+        // Required empty public constructor
+    }
 
     public User(String firstName, String lastName, String email)
     {
@@ -40,7 +43,7 @@ public class User
     private int generateId()
     {
         Random random = new Random();
-        athleteId = 100 + random.nextInt(999);
+        athleteId = random.nextInt((999 - 100) + 1) + 100;
         return athleteId;
     }
 }

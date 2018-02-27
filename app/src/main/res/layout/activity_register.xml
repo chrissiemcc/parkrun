@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.parkrun.main.RegisterActivity">
+    tools:context="com.parkrun.main.activities.RegisterActivity">
 
     <EditText
         android:ems="10"

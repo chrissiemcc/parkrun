@@ -22,13 +22,14 @@
     <string name="settings">Settings</string>
     <string name="log_out">Log Out</string>
     <string name="navigation_header">Header Navigation</string>
+
+    <!-- String related to fragments -->
     <string name="home">Home</string>
     <string name="volunteer">Volunteer</string>
     <string name="results">Results</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="parkrun_info">parkrun Info</string>
     <string name="my_club">My Club</string>
     <string name="my_parkrun">My parkrun</string>
+    <string name="news">News</string>
+    <string name="photos">Photos</string>
 </resources>

@@ -1,4 +1,4 @@
-package com.parkrun.main;
+package com.parkrun.main.activities;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -18,6 +18,9 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.parkrun.main.R;
+import com.parkrun.main.objects.User;
+import com.parkrun.main.util.Utilities;
 
 public class RegisterActivity extends AppCompatActivity
 {

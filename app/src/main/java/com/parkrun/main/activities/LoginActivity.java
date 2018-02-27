@@ -1,4 +1,4 @@
-package com.parkrun.main;
+package com.parkrun.main.activities;
 
 import android.content.Context;
 import android.content.Intent;
@@ -25,6 +25,9 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.parkrun.main.R;
+import com.parkrun.main.objects.User;
+import com.parkrun.main.util.Utilities;
 
 public class LoginActivity extends AppCompatActivity
 {

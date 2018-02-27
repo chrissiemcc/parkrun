@@ -1,9 +1,10 @@
-package com.parkrun.main;
+package com.parkrun.main.activities;
 
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -15,6 +16,13 @@ import android.support.v7.widget.Toolbar;
 import android.widget.FrameLayout;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.parkrun.main.R;
+import com.parkrun.main.fragments.HomeFragment;
+import com.parkrun.main.fragments.InfoFragment;
+import com.parkrun.main.fragments.MyClubFragment;
+import com.parkrun.main.fragments.myparkrun.MyParkrunMainFragment;
+import com.parkrun.main.fragments.ResultsFragment;
+import com.parkrun.main.fragments.VolunteerFragment;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener
 {
@@ -24,9 +32,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private HomeFragment homeFragment;
     private VolunteerFragment volunteerFragment;
     private ResultsFragment resultsFragment;
-    private MyParkrunFragment parkrunFragment;
+    private MyParkrunMainFragment parkrunFragment;
     private MyClubFragment clubFragment;
     private InfoFragment infoFragment;
+    private NavigationView navigationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -35,7 +44,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setContentView(R.layout.activity_main);
 
         Toolbar toolbar = findViewById(R.id.action_bar);
-        toolbar.setTitle("Home");
         setSupportActionBar(toolbar);
         //Initialise and set the action bar
 
@@ -46,7 +54,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         //Add menu button to the action bar
 
-        NavigationView navigationView = findViewById(R.id.navigation_view);
+        navigationView = findViewById(R.id.navigation_view);
         navigationView.setNavigationItemSelectedListener(this);
         //Initialise the navigation view and set listener
 
@@ -54,12 +62,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         homeFragment = new HomeFragment();
         volunteerFragment = new VolunteerFragment();
         resultsFragment = new ResultsFragment();
-        parkrunFragment = new MyParkrunFragment();
+        parkrunFragment = new MyParkrunMainFragment();
         clubFragment = new MyClubFragment();
         infoFragment = new InfoFragment();
         //Initialise fragments for each nav page
 
-        setFragment(homeFragment);
+        setFragment(homeFragment, "Home");
         navigationView.setCheckedItem(R.id.nav_home);
         //Set default fragment and nav menu item
     }
@@ -88,58 +96,64 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item)
     {
+        navigationView = findViewById(R.id.navigation_view);
         int id = item.getItemId();
 
-        switch (id)
+        if(!navigationView.getMenu().findItem(id).isChecked()) // if menu item is already selected, don't refresh
         {
-            case R.id.nav_home:
-                getSupportActionBar().setTitle("Home");
-                setFragment(homeFragment);
-                break;
+            String name;
 
-            case R.id.nav_volunteer:
-                getSupportActionBar().setTitle("Volunteer");
-                setFragment(volunteerFragment);
-                break;
+            switch (id)
+            {
+                case R.id.nav_home:
+                    name = "Home";
+                    setFragment(homeFragment, name);
+                    break;
 
-            case R.id.nav_results:
-                getSupportActionBar().setTitle("Results");
-                setFragment(resultsFragment);
-                break;
+                case R.id.nav_volunteer:
+                    name = "Volunteer";
+                    setFragment(volunteerFragment, name);
+                    break;
 
-            case R.id.nav_my_parkrun:
-                getSupportActionBar().setTitle("My parkrun");
-                setFragment(parkrunFragment);
-                break;
+                case R.id.nav_results:
+                    name = "Results";
+                    setFragment(resultsFragment, name);
+                    break;
 
-            case R.id.nav_my_club:
-                getSupportActionBar().setTitle("My Club");
-                setFragment(clubFragment);
-                break;
+                case R.id.nav_my_parkrun:
+                    name = "My parkrun";
+                    setFragment(parkrunFragment, name);
+                    break;
 
-            case R.id.nav_info:
-                getSupportActionBar().setTitle("parkrun Info");
-                setFragment(infoFragment);
-                break;
+                case R.id.nav_my_club:
+                    name = "My Club";
+                    setFragment(clubFragment, name);
+                    break;
 
-            case R.id.nav_profile:
+                case R.id.nav_info:
+                    name = "parkrun Info";
+                    setFragment(infoFragment, name);
+                    break;
 
-                //new intent
+                case R.id.nav_profile:
 
-                break;
+                    //new intent
 
-            case R.id.nav_settings:
+                    break;
 
-                //new intent
+                case R.id.nav_settings:
 
-                break;
+                    //new intent
 
-            case R.id.nav_logout:
-                signOut();
-                break;
+                    break;
 
-            default:
-                return false;
+                case R.id.nav_logout:
+                    signOut();
+                    break;
+
+                default:
+                    return false;
+            }
         }
 
         DrawerLayout drawerLayout = findViewById(R.id.drawerLayout);
@@ -148,10 +162,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
-    private void setFragment(Fragment fragment)
+    private void setFragment(Fragment fragment, String name)
     {
+        getSupportActionBar().setTitle(name);
+
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-        fragmentTransaction.replace(frameLayout.getId(), fragment).commit();
+        fragmentTransaction
+                .replace(frameLayout.getId(), fragment)
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+                .addToBackStack(name)
+                .commit();
     }
 
     @Override
@@ -159,13 +179,34 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     {
         drawerLayout = findViewById(R.id.drawerLayout);
 
+        FragmentManager fragmentManager = getSupportFragmentManager();
+
         if(drawerLayout.isDrawerOpen(GravityCompat.START))
         {
             drawerLayout.closeDrawer(GravityCompat.START);
         }
         else
         {
-            super.onBackPressed();
+            int fragments = fragmentManager.getBackStackEntryCount();
+
+            if (fragments == 1)
+            {
+                finish();
+                // finish activity if no fragments remain in back stack
+            }
+            else
+            {
+                if (fragments > 1)
+                {
+                    fragmentManager.popBackStack();
+                    getSupportActionBar().setTitle(fragmentManager.getBackStackEntryAt(fragments-2).getName());
+                    // To ensure the action bar title is always correct when back is pressed
+                }
+                else
+                {
+                    super.onBackPressed();
+                }
+            }
         }
     }
 }
