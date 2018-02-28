@@ -5,37 +5,17 @@
     android:layout_height="match_parent"
     tools:context="com.parkrun.main.fragments.myparkrun.MyParkrunMainFragment">
 
-        <android.support.design.widget.TabLayout
-            android:id="@+id/my_parkrun_tabs"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/colorPrimary"
-            app:tabTextColor="@android:color/white">
+    <android.support.design.widget.TabLayout
+        android:id="@+id/my_parkrun_tabs"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimary"
+        app:tabTextColor="@android:color/white"/>
 
-            <android.support.design.widget.TabItem
-                android:id="@+id/my_parkrun_news_tab"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/news" />
-
-            <android.support.design.widget.TabItem
-                android:id="@+id/my_parkrun_photos_tab"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/photos" />
-
-            <android.support.design.widget.TabItem
-                android:id="@+id/my_parkrun_results_tab"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/results" />
-        </android.support.design.widget.TabLayout>
-
-        <android.support.v4.view.ViewPager
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/my_parkrun_viewpager"
-            android:layout_below="@+id/my_parkrun_tabs">
-        </android.support.v4.view.ViewPager>
+    <android.support.v4.view.ViewPager
+        android:id="@+id/my_parkrun_viewpager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/my_parkrun_tabs"/>
 
 </RelativeLayout>

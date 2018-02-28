@@ -32,4 +32,7 @@
     <string name="my_parkrun">My parkrun</string>
     <string name="news">News</string>
     <string name="photos">Photos</string>
+    <string name="you">You</string>
+    <string name="friends">Friends</string>
+    <string name="other">Other</string>
 </resources>

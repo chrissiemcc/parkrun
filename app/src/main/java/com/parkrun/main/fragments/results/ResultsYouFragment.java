@@ -1,4 +1,4 @@
-package com.parkrun.main.fragments;
+package com.parkrun.main.fragments.results;
 
 
 import android.os.Bundle;
@@ -9,14 +9,13 @@ import android.view.ViewGroup;
 
 import com.parkrun.main.R;
 
-
 /**
  * A simple {@link Fragment} subclass.
  */
-public class ResultsFragment extends Fragment {
+public class ResultsYouFragment extends Fragment {
 
 
-    public ResultsFragment() {
+    public ResultsYouFragment() {
         // Required empty public constructor
     }
 
@@ -25,7 +24,7 @@ public class ResultsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_results, container, false);
+        return inflater.inflate(R.layout.fragment_results_you, container, false);
     }
 
 }

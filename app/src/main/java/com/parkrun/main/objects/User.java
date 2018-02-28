@@ -6,6 +6,7 @@ public class User
 {
     private int athleteId;
     private String firstName, lastName, email;
+    private boolean director;
 
     public User()
     {
@@ -18,6 +19,7 @@ public class User
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
+        this.director = false;
     }
 
     public int getAthleteId()
@@ -45,5 +47,10 @@ public class User
         Random random = new Random();
         athleteId = random.nextInt((999 - 100) + 1) + 100;
         return athleteId;
+    }
+
+    private boolean getDirector()
+    {
+        return this.director;
     }
 }

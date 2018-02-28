@@ -21,7 +21,7 @@ import com.parkrun.main.fragments.HomeFragment;
 import com.parkrun.main.fragments.InfoFragment;
 import com.parkrun.main.fragments.MyClubFragment;
 import com.parkrun.main.fragments.myparkrun.MyParkrunMainFragment;
-import com.parkrun.main.fragments.ResultsFragment;
+import com.parkrun.main.fragments.results.ResultsMainFragment;
 import com.parkrun.main.fragments.VolunteerFragment;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener
@@ -31,7 +31,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private FrameLayout frameLayout;
     private HomeFragment homeFragment;
     private VolunteerFragment volunteerFragment;
-    private ResultsFragment resultsFragment;
+    private ResultsMainFragment resultsFragment;
     private MyParkrunMainFragment parkrunFragment;
     private MyClubFragment clubFragment;
     private InfoFragment infoFragment;
@@ -56,12 +56,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         navigationView = findViewById(R.id.navigation_view);
         navigationView.setNavigationItemSelectedListener(this);
-        //Initialise the navigation view and set listener
+        //Initialise the navigation view and set listener for items being selected
 
         frameLayout = findViewById(R.id.main_frame);
         homeFragment = new HomeFragment();
         volunteerFragment = new VolunteerFragment();
-        resultsFragment = new ResultsFragment();
+        resultsFragment = new ResultsMainFragment();
         parkrunFragment = new MyParkrunMainFragment();
         clubFragment = new MyClubFragment();
         infoFragment = new InfoFragment();
@@ -99,9 +99,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         navigationView = findViewById(R.id.navigation_view);
         int id = item.getItemId();
 
-        if(!navigationView.getMenu().findItem(id).isChecked()) // if menu item is already selected, don't refresh
+        if(!navigationView.getMenu().findItem(id).isChecked()) // if menu item is already selected, don't refresh and close drawer
         {
             String name;
+            Intent intent;
 
             switch (id)
             {
@@ -136,15 +137,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     break;
 
                 case R.id.nav_profile:
-
-                    //new intent
-
+                    intent = new Intent(MainActivity.this, MyProfileActivity.class);
+                    startActivity(intent);
                     break;
 
                 case R.id.nav_settings:
-
-                    //new intent
-
+                    intent = new Intent(MainActivity.this, SettingsActivity.class);
+                    startActivity(intent);
                     break;
 
                 case R.id.nav_logout:
