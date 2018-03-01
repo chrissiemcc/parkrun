@@ -6,13 +6,13 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v7.app.AlertDialog;
 
-public class Utilities
+public class UtilAlertDialog
 {
     private Context context;
 
-    public Utilities(){}
+    public UtilAlertDialog(){}
 
-    public Utilities(Context context)
+    public UtilAlertDialog(Context context)
     {
         this.context = context;
     }

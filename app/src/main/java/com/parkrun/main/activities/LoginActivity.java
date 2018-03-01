@@ -27,7 +27,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.parkrun.main.R;
 import com.parkrun.main.objects.User;
-import com.parkrun.main.util.Utilities;
+import com.parkrun.main.util.UtilAlertDialog;
 
 public class LoginActivity extends AppCompatActivity
 {
@@ -161,7 +161,7 @@ public class LoginActivity extends AppCompatActivity
         final int athleteId = Integer.parseInt(txtAthleteIdLogin.getText().toString().trim());
         final String passString = txtPasswordLogin.getText().toString();
 
-        final Utilities utilities = new Utilities();
+        final UtilAlertDialog utilAlertDialog = new UtilAlertDialog();
 
         loginFormVisibility(0);
 
@@ -206,15 +206,15 @@ public class LoginActivity extends AppCompatActivity
                                 {
                                     if (!task.isSuccessful() && task.getException().getMessage().equals("The password is invalid or the user does not have a password."))
                                     {
-                                        utilities.getAlertDialog("Password Invalid", "The password provided does not match the password for this ID.", LoginActivity.this);
+                                        utilAlertDialog.getAlertDialog("Password Invalid", "The password provided does not match the password for this ID.", LoginActivity.this);
                                     }
                                     else if (task.isSuccessful() && !databaseUser.isEmailVerified())
                                     {
-                                        utilities.getAlertDialog("Email Not Verified", "This account has not yet been verified.", LoginActivity.this);
+                                        utilAlertDialog.getAlertDialog("Email Not Verified", "This account has not yet been verified.", LoginActivity.this);
                                     }
                                     else
                                     {
-                                        utilities.getAlertDialog("Error", task.getException().getMessage(), LoginActivity.this);
+                                        utilAlertDialog.getAlertDialog("Error", task.getException().getMessage(), LoginActivity.this);
                                     }
 
                                     loginFormVisibility(1);
@@ -229,7 +229,7 @@ public class LoginActivity extends AppCompatActivity
 
                 if (!userFound)
                 {
-                    utilities.getAlertDialog("User Not Found", "No user was found matching the ID provided.", LoginActivity.this);
+                    utilAlertDialog.getAlertDialog("User Not Found", "No user was found matching the ID provided.", LoginActivity.this);
 
                     loginFormVisibility(1);
                 }

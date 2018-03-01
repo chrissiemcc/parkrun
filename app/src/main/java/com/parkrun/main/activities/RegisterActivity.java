@@ -20,11 +20,11 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.parkrun.main.R;
 import com.parkrun.main.objects.User;
-import com.parkrun.main.util.Utilities;
+import com.parkrun.main.util.UtilAlertDialog;
 
 public class RegisterActivity extends AppCompatActivity
 {
-    private final Utilities utilities = new Utilities(this);
+    private final UtilAlertDialog utilAlertDialog = new UtilAlertDialog(this);
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -99,19 +99,19 @@ public class RegisterActivity extends AppCompatActivity
                                 editor.putBoolean("newUser", true);
                                 editor.apply();
 
-                                utilities.getAlertDialog("Email Verification", "A verification email has been sent. Your ID is " + user.getAthleteId(), RegisterActivity.this, LoginActivity.class);
+                                utilAlertDialog.getAlertDialog("Email Verification", "A verification email has been sent. Your ID is " + user.getAthleteId(), RegisterActivity.this, LoginActivity.class);
 
                                 finish();
                             }
                         }
                         else if (task.getException() instanceof FirebaseAuthUserCollisionException)
                         {
-                            utilities.getAlertDialog("User Exists", "This email address provided is already registered", RegisterActivity.this);
+                            utilAlertDialog.getAlertDialog("User Exists", "This email address provided is already registered", RegisterActivity.this);
                             authentication.signInAnonymously();
                         }
                         else
                         {
-                            utilities.getAlertDialog("Error", task.getException().getMessage(), RegisterActivity.this);
+                            utilAlertDialog.getAlertDialog("Error", task.getException().getMessage(), RegisterActivity.this);
                             authentication.signInAnonymously();
                         }
                     }
@@ -119,12 +119,12 @@ public class RegisterActivity extends AppCompatActivity
             }
             else
             {
-                utilities.getAlertDialog("Password Error", "The two passwords provided do not match", RegisterActivity.this);
+                utilAlertDialog.getAlertDialog("Password Error", "The two passwords provided do not match", RegisterActivity.this);
             }
         }
         else
         {
-            utilities.getAlertDialog("Fields Empty", "There are fields that still require to be filled", RegisterActivity.this);
+            utilAlertDialog.getAlertDialog("Fields Empty", "There are fields that still require to be filled", RegisterActivity.this);
         }
     }
 }

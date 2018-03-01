@@ -5,7 +5,6 @@
     tools:context="com.parkrun.main.fragments.HomeFragment">
 
     <TextView
-        android:id="@+id/jsoup_test"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:text="Home" />
