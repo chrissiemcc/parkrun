@@ -81,13 +81,13 @@ public class RegisterActivity extends AppCompatActivity
                     {
                         if(task.isSuccessful())
                         {
-                            User user = new User(firstNameString, lastNameString, emailString);
+                            //User user = new User(firstNameString, lastNameString, emailString);
 
                             databaseUser[0] = authentication.getCurrentUser();
 
                             if (databaseUser[0] != null)
                             {
-                                databaseReference.child(databaseUser[0].getUid()).setValue(user);
+                                //databaseReference.child(databaseUser[0].getUid()).setValue(user);
 
                                 UserProfileChangeRequest displayName = new UserProfileChangeRequest.Builder().setDisplayName(firstNameString).build();
                                 databaseUser[0].updateProfile(displayName);
@@ -99,7 +99,7 @@ public class RegisterActivity extends AppCompatActivity
                                 editor.putBoolean("newUser", true);
                                 editor.apply();
 
-                                utilAlertDialog.getAlertDialog("Email Verification", "A verification email has been sent. Your ID is " + user.getAthleteId(), RegisterActivity.this, LoginActivity.class);
+                                //utilAlertDialog.getAlertDialog("Email Verification", "A verification email has been sent. Your ID is " + user.getAthleteId(), RegisterActivity.this, LoginActivity.class);
 
                                 finish();
                             }

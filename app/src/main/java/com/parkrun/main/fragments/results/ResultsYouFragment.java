@@ -2,9 +2,6 @@ package com.parkrun.main.fragments.results;
 
 import android.annotation.SuppressLint;
 import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.drawable.ShapeDrawable;
-import android.graphics.drawable.shapes.RectShape;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -76,23 +73,16 @@ public class ResultsYouFragment extends Fragment
 
                     TableRow tableRow;
 
-                    TableRow.LayoutParams layoutParams = new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT);
-                    layoutParams.setMargins(2,0,2,0);
+                    boolean doHeader = true;
 
-                    //Initialise a shapedrawable
-                    ShapeDrawable border = new ShapeDrawable();
-                    //Specify the shape of ShapeDrawable
-                    border.setShape(new RectShape());
-                    //Specify the border colour of the shape
-                    border.getPaint().setColor(Color.BLACK);
-                    //Set the border width
-                    border.getPaint().setStrokeWidth(5f);
-                    //Specify the style is a stroke
-                    border.getPaint().setStyle(Paint.Style.STROKE);
+                    TableRow.LayoutParams layoutParams = new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT);
+                    layoutParams.setMargins(0,8,0,0);
 
                     Document jsoupDocument = Jsoup.connect("http://www.parkrun.org.uk/results/athleteeventresultshistory/?athleteNumber=763139&eventNumber=0").get();
+                    // Retrieve parkrun results html page
 
                     Element resultsTable = jsoupDocument.selectFirst("caption:contains(All Results)").parent();
+                    // Select the main results table
 
                     Elements rows = resultsTable.select("tr");
 
@@ -101,25 +91,31 @@ public class ResultsYouFragment extends Fragment
                         tableRow = new TableRow(getActivity().getApplicationContext());
 
                         for (int i=0;i<results.length;i++)
-                        {
                             results[i] = new TextView(getActivity().getApplicationContext());
-                        }
 
                         Elements cells = row.select("td");
 
-                        for (Element cell : cells)
+                        if(doHeader)
                         {
-                            results[cell.elementSiblingIndex()].setText(cell.text());
+                            String[] headings = {"parkrun","Date","Event #","Pos","Time","Age %","PB?"};
+                            for(int i=0; i<results.length;i++)
+                                results[i].setText(headings[i]);
                         }
+                        else
+                            for (Element cell : cells)
+                                results[cell.elementSiblingIndex()].setText(cell.text());
 
                         for (TextView result : results)
                         {
                             result.setGravity(Gravity.CENTER);
-                            result.setPadding(8,0,8,0);
-                            result.setLayoutParams(layoutParams);
-                            result.setBackground(border);
+                            result.setPadding(8, 0, 8, 0);
+                            result.setLayoutParams(layoutParams); //set margins between rows
+                            if(doHeader) result.setBackgroundColor(Color.CYAN); //set heading background colour
+                            result.setTextSize(5, 2f);
                             tableRow.addView(result);
                         }
+
+                        if(doHeader) doHeader = false;
 
                         tableLayout.addView(tableRow);
                         //Add row to table after it has finished populating

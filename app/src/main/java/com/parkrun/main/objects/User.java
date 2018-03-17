@@ -13,9 +13,9 @@ public class User
         // Required empty public constructor
     }
 
-    public User(String firstName, String lastName, String email)
+    public User(int athleteId, String firstName, String lastName, String email)
     {
-        this.athleteId = generateId();
+        this.athleteId = athleteId;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
@@ -40,13 +40,6 @@ public class User
     public String getEmail()
     {
         return this.email;
-    }
-
-    private int generateId()
-    {
-        Random random = new Random();
-        athleteId = random.nextInt((999 - 100) + 1) + 100;
-        return athleteId;
     }
 
     private boolean getDirector()
