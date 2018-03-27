@@ -32,6 +32,10 @@ import com.parkrun.main.R;
 import com.parkrun.main.objects.User;
 import com.parkrun.main.util.UtilAlertDialog;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.InputStreamReader;
@@ -243,26 +247,49 @@ public class LoginActivity extends AppCompatActivity
                     {
                         Log.d("Debug", lineRead);
 
-                        if(lineRead.contains("Incorrect username/password combination."))
+                        if(lineRead.contains("Incorrect username/password combination.")) //Login UNSUCCESSFUL
                         {
                             correctLogin[0] = false;
                             wasUserCreated[0] = false;
 
                             break;
                         }
-                        else if(lineRead.contains("Profile for:"))
+                        else if(lineRead.contains("Profile for:")) //Login SUCCESSFUL
                         {
                             correctLogin[0] = true;
 
-                            String[] parts = lineRead.split("</p>", 2);
-                            String details = parts[0].substring(parts[0].lastIndexOf('>') + 1).trim();
-                            parts = details.split(" ", 3);
-                            String firstName = parts[0].trim();
-                            String lastName = parts[1].trim();
-                            int id = Integer.parseInt(parts[2].substring(parts[2].indexOf("A") + 1, parts[2].indexOf(")")).trim());
-                            Log.d("Debug", "Firstname: " + firstName + ", Lastname: " + lastName + " and id: " + id);
+                            String details, firstName, lastName, gender, DOBMonth, runningClubName, email, parkrunName, postcode, ICEName, ICEContact, medicalInfo;
+                            int athleteId, DOBDay, DOBYear, runningClubId;
 
-                            wasUserCreated[0] = createUser(id, "chrissiemcc44@gmail.com", passString, firstName, lastName); //create a user for firebase features not currently existing in parkrun
+                            String[] parts = lineRead.split("</p>", 2);
+                            details = parts[0].substring(parts[0].lastIndexOf('>') + 1).trim();
+                            parts = details.split(" ", 3);
+                            firstName = parts[0].trim();
+                            lastName = parts[1].trim();
+                            athleteId = Integer.parseInt(parts[2].substring(parts[2].indexOf("A") + 1, parts[2].indexOf(")")).trim());
+
+                            Document detailsDoc = Jsoup.connect("https://admin.parkrun.com/runnerSupport/UK/update.php?Ath="+athleteId+"&Conf=561d52342f816f65f39f").get();
+                            // Retrieve parkrun profile details
+
+                            Element formTable = detailsDoc.selectFirst("table");
+
+                            //get profile details off form and initialise Strings
+
+                            gender = formTable.selectFirst("input[name=Sex][checked]").attr("value"); //get gender
+                            DOBDay = Integer.parseInt(formTable.selectFirst("select[name=DOBDay]").selectFirst("option[selected=selected]").text()); //get DOB Day
+                            DOBMonth = formTable.selectFirst("select[name=DOBMonth]").selectFirst("option[selected=selected]").text(); //get DOB Month
+                            DOBYear = Integer.parseInt(formTable.selectFirst("select[name=DOBYear]").selectFirst("option[selected=selected]").text()); //get DOB Year
+                            runningClubId = Integer.parseInt(formTable.selectFirst("select[name=club]").selectFirst("option[selected=selected]").attr("value")); //get running club id;
+                            runningClubName = formTable.selectFirst("select[name=club]").selectFirst("option[selected=selected]").text(); //get running club name
+                            email = formTable.selectFirst("input[name=email]").attr("value"); //get Email
+                            parkrunName = formTable.selectFirst("select[name=homerun]").selectFirst("option[selected=selected]").text(); //get home parkrun name
+                            postcode = formTable.selectFirst("input[name=postcode]").attr("value"); //get postcode
+                            ICEName = formTable.selectFirst("input[name=ICEName]").attr("value"); //get ICE Name
+                            ICEContact = formTable.selectFirst("input[name=ICEContact]").attr("value"); //get ICE Contact number
+                            medicalInfo = formTable.selectFirst("textarea[name=medicalInfo]").text(); //get medical info
+
+                            wasUserCreated[0] = createUser(athleteId, email, passString, firstName, lastName, gender, DOBDay, DOBMonth, DOBYear,
+                                    runningClubId, runningClubName, parkrunName, postcode, ICEName, ICEContact, medicalInfo); //create a user for firebase features not currently existing in parkrun
 
                             break;
                         }
@@ -282,41 +309,8 @@ public class LoginActivity extends AppCompatActivity
                     }
                 }
 
-                /*try
-                {
-                    URL detailsUrl = new URL("https://www.parkrun.com/profile/update/?Country=UK"); //profile details URL
-                    connection = (HttpsURLConnection) detailsUrl.openConnection();
-                    connection.setRequestMethod("POST");
-                    connection.setDoInput(true);
-                    connection.setDoOutput(true);
-
-                    BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(connection.getOutputStream()));
-                    writer.write("athleteid="+athleteId+"&password="+passString+"&submit=OK"); //Login credentials
-                    writer.close();
-
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-
-                    String lineRead;
-
-                    while ((lineRead = reader.readLine()) != null)
-                    {
-                        Log.d("Debug", lineRead);
-                    }
-                }
-                catch (Exception e)
-                {
-                    e.printStackTrace();
-                }
-                finally
-                {
-                    if(connection != null)
-                    {
-                        connection.disconnect();
-                    }
-                }*/
-
-                Log.d("Debug", "FINAL: "+correctLogin[0]);
-                Log.d("Debug", "FINAL: "+wasUserCreated[0]);
+                Log.d("Debug", "FINAL: Login was successful: "+correctLogin[0]);
+                Log.d("Debug", "FINAL: A new user was created: "+wasUserCreated[0]);
 
                 if(correctLogin[0] && !wasUserCreated[0])
                 {
@@ -334,7 +328,9 @@ public class LoginActivity extends AppCompatActivity
         loginThread.start();
     }
 
-    private boolean createUser(final int athleteId, final String email, String password, final String firstName, final String lastName)
+    private boolean createUser(final int athleteId, final String email, String password, final String firstName, final String lastName, final String gender,
+                               final int DOBDay, final String DOBMonth, final int DOBYear, final int runningClubId, final String runningClubName, final String parkrunName, final String postcode,
+                               final String ICEName, final String ICEContact, final String medicalInfo)
     {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         final DatabaseReference databaseReference = database.getReference("users");
@@ -357,7 +353,8 @@ public class LoginActivity extends AppCompatActivity
             {
                 if (task.isSuccessful())
                 {
-                    User user = new User(athleteId, firstName, lastName, email);
+                    User user = new User(athleteId, firstName, lastName, email, gender, DOBDay, DOBMonth, DOBYear, runningClubId,
+                            runningClubName, parkrunName, postcode, ICEName, ICEContact, medicalInfo);
 
                     databaseUser = authentication.getCurrentUser();
 

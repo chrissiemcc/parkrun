@@ -6,12 +6,14 @@
       <w>athleteid</w>
       <w>firebase</w>
       <w>firebaseio</w>
+      <w>homerun</w>
       <w>jsoup</w>
       <w>latios</w>
       <w>loginhint</w>
       <w>myparkrun</w>
       <w>parkrun</w>
       <w>shapedrawable</w>
+      <w>textarea</w>
     </words>
   </dictionary>
 </component>
