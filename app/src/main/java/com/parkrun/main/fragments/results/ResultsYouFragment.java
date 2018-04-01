@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,8 +15,15 @@ import android.widget.FrameLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
-
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.parkrun.main.R;
+import com.parkrun.main.objects.User;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -26,11 +34,12 @@ import java.io.IOException;
 
 public class ResultsYouFragment extends Fragment
 {
+    private int athleteId;
+
     private View layout;
-
     private TableLayout tableLayout;
-
     private TextView[] results = new TextView[7];
+    private User user;
 
     @SuppressLint("HandlerLeak")
     Handler handler = new Handler()
@@ -55,6 +64,43 @@ public class ResultsYouFragment extends Fragment
         // Inflate the layout for this fragment
         layout = inflater.inflate(R.layout.fragment_results_you, container, false);
 
+        final FirebaseAuth authentication = FirebaseAuth.getInstance();
+
+        final FirebaseUser databaseUser = authentication.getCurrentUser();
+
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("users");
+
+        databaseReference.addListenerForSingleValueEvent(new ValueEventListener()
+        {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot)
+            {
+                Iterable<DataSnapshot> children = dataSnapshot.getChildren();
+
+                for (DataSnapshot child : children)
+                {
+                    user = child.getValue(User.class);
+
+                    Log.d("Testing", child.getKey());
+                    Log.d("Testing", databaseUser.getUid());
+
+                    if(child.getKey().equals(databaseUser.getUid()))
+                    {
+                        athleteId = user.getAthleteId(); //gets the user athlete id from the database to display their results
+
+                        Log.d("Testing", "The id: "+athleteId+" was successfully retrieved");
+
+                        break;
+                    }
+                }
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError)
+            {
+
+            }
+        });
+
         runJsoupThread();
 
         return layout;
@@ -69,6 +115,11 @@ public class ResultsYouFragment extends Fragment
             {
                 try
                 {
+                    while(true)
+                    {
+                        if (athleteId != 0) break; //Sometimes Firebase async tasks need time to catch up...
+                    }
+
                     tableLayout = new TableLayout(getActivity().getApplicationContext());
 
                     TableRow tableRow;
@@ -78,7 +129,9 @@ public class ResultsYouFragment extends Fragment
                     TableRow.LayoutParams layoutParams = new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT);
                     layoutParams.setMargins(0,8,0,0);
 
-                    Document jsoupDocument = Jsoup.connect("http://www.parkrun.org.uk/results/athleteeventresultshistory/?athleteNumber=763139&eventNumber=0").get();
+                    Log.d("Testing", athleteId+" is the id");
+
+                    Document jsoupDocument = Jsoup.connect("http://www.parkrun.org.uk/results/athleteeventresultshistory/?athleteNumber="+athleteId+"&eventNumber=0").get();
                     // Retrieve parkrun results html page
 
                     Element resultsTable = jsoupDocument.selectFirst("caption:contains(All Results)").parent();

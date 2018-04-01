@@ -1,5 +1,7 @@
 package com.parkrun.main.fragments;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
@@ -7,11 +9,14 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
 import com.parkrun.main.R;
 
 public class InfoFragment extends Fragment
 {
+    Button btnSponsors, btnStartEvent;
+
     public InfoFragment()
     {
         // Required empty public constructor
@@ -22,6 +27,35 @@ public class InfoFragment extends Fragment
     {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_about, container, false);
+    }
+
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState)
+    {
+        super.onViewCreated(view, savedInstanceState);
+
+        btnSponsors = getView().findViewById(R.id.btnSponsors);
+        btnStartEvent = getView().findViewById(R.id.btnStartEvent);
+
+        btnSponsors.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.parkrun.org.uk/sponsors/"));
+                startActivity(browserIntent);
+            }
+        });
+
+        btnStartEvent.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.parkrun.com/about/start-your-own-event/"));
+                startActivity(browserIntent);
+            }
+        });
     }
 
     @Override

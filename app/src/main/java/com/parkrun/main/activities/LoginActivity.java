@@ -394,6 +394,7 @@ public class LoginActivity extends AppCompatActivity
         return wasUserCreated[0];
     }
 
+
     private void login()
     {
         authentication = FirebaseAuth.getInstance();

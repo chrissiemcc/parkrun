@@ -35,4 +35,6 @@
     <string name="you">You</string>
     <string name="friends">Friends</string>
     <string name="other">Other</string>
+    <string name="sponsors">Sponsors</string>
+    <string name="start_new_event">Start new event</string>
 </resources>
