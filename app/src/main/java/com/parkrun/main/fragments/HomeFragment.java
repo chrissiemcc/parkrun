@@ -7,7 +7,10 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.parkrun.main.R;
 
 public class HomeFragment extends Fragment
@@ -22,6 +25,22 @@ public class HomeFragment extends Fragment
     {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_home, container, false);
+    }
+
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState)
+    {
+        super.onViewCreated(view, savedInstanceState);
+
+        TextView tvHome = view.findViewById(R.id.tvHome);
+
+        final FirebaseAuth authentication = FirebaseAuth.getInstance();
+        final FirebaseUser firebaseUser = authentication.getCurrentUser();
+
+        String welcome = "Welcome " + firebaseUser.getDisplayName() + "!";
+        tvHome.setText(welcome);
+
+
     }
 
     @Override

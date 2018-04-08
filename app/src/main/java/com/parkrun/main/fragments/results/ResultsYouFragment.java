@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.ProgressBar;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -34,6 +35,8 @@ import java.io.IOException;
 
 public class ResultsYouFragment extends Fragment
 {
+    private boolean outcome = true;
+
     private int athleteId;
 
     private View layout;
@@ -47,9 +50,25 @@ public class ResultsYouFragment extends Fragment
         @Override
         public void handleMessage(Message msg)
         {
-            FrameLayout myResultsFrame = layout.findViewById(R.id.my_results_frame);
+            ProgressBar myResultsProgress;
+            if(outcome)
+            {
+                myResultsProgress = layout.findViewById(R.id.myResultsProgress);
+                myResultsProgress.setVisibility(View.INVISIBLE);
 
-            myResultsFrame.addView(tableLayout);
+                FrameLayout myResultsFrame = layout.findViewById(R.id.myResultsFrame);
+
+                myResultsFrame.addView(tableLayout);
+                //view results of parkrunner
+            }
+            else
+            {
+                TextView noResults = layout.findViewById(R.id.tvNoResults);
+                myResultsProgress = layout.findViewById(R.id.myResultsProgress);
+                myResultsProgress.setVisibility(View.INVISIBLE);
+                noResults.setVisibility(View.VISIBLE);
+                //no results found
+            }
         }
     };
 
@@ -65,7 +84,6 @@ public class ResultsYouFragment extends Fragment
         layout = inflater.inflate(R.layout.fragment_results_you, container, false);
 
         final FirebaseAuth authentication = FirebaseAuth.getInstance();
-
         final FirebaseUser databaseUser = authentication.getCurrentUser();
 
         DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("users");
@@ -117,7 +135,10 @@ public class ResultsYouFragment extends Fragment
                 {
                     while(true)
                     {
-                        if (athleteId != 0) break; //Sometimes Firebase async tasks need time to catch up...
+                        if (athleteId != 0)
+                        {
+                            break; //Sometimes Firebase async tasks need time to catch up...
+                        }
                     }
 
                     tableLayout = new TableLayout(getActivity().getApplicationContext());
@@ -139,42 +160,50 @@ public class ResultsYouFragment extends Fragment
 
                     Elements rows = resultsTable.select("tr");
 
-                    for (Element row : rows)
+                    if(rows.last() != rows.first())
                     {
-                        tableRow = new TableRow(getActivity().getApplicationContext());
-
-                        for (int i=0;i<results.length;i++)
-                            results[i] = new TextView(getActivity().getApplicationContext());
-
-                        Elements cells = row.select("td");
-
-                        if(doHeader)
+                        for (Element row : rows)
                         {
-                            String[] headings = {"parkrun","Date","Event #","Pos","Time","Age %","PB?"};
-                            for(int i=0; i<results.length;i++)
-                                results[i].setText(headings[i]);
+                            tableRow = new TableRow(getActivity().getApplicationContext());
+
+                            for (int i=0;i<results.length;i++)
+                                results[i] = new TextView(getActivity().getApplicationContext());
+
+                            Elements cells = row.select("td");
+
+                            if(doHeader)
+                            {
+                                String[] headings = {"parkrun","Date","Event #","Pos","Time","Age %","PB?"};
+                                for(int i=0; i<results.length;i++)
+                                    results[i].setText(headings[i]);
+                            }
+                            else
+                                for (Element cell : cells)
+                                    results[cell.elementSiblingIndex()].setText(cell.text());
+
+                            for (TextView result : results)
+                            {
+                                result.setGravity(Gravity.CENTER);
+                                result.setPadding(8, 0, 8, 0);
+                                result.setLayoutParams(layoutParams); //set margins between rows
+                                if(doHeader) result.setBackgroundColor(Color.CYAN); //set heading background colour
+                                result.setTextSize(5, 2f);
+                                tableRow.addView(result);
+                            }
+
+                            if(doHeader) doHeader = false;
+
+                            tableLayout.addView(tableRow);
+                            //Add row to table after it has finished populating
+
+                            tableLayout.setStretchAllColumns(true);
+                            //Makes table fills the screen
                         }
-                        else
-                            for (Element cell : cells)
-                                results[cell.elementSiblingIndex()].setText(cell.text());
-
-                        for (TextView result : results)
-                        {
-                            result.setGravity(Gravity.CENTER);
-                            result.setPadding(8, 0, 8, 0);
-                            result.setLayoutParams(layoutParams); //set margins between rows
-                            if(doHeader) result.setBackgroundColor(Color.CYAN); //set heading background colour
-                            result.setTextSize(5, 2f);
-                            tableRow.addView(result);
-                        }
-
-                        if(doHeader) doHeader = false;
-
-                        tableLayout.addView(tableRow);
-                        //Add row to table after it has finished populating
-
-                        tableLayout.setStretchAllColumns(true);
-                        //Makes table fills the screen
+                    }
+                    else
+                    {
+                        //No results found
+                        outcome = false;
                     }
                 }
                 catch (IOException e)

@@ -1,13 +1,46 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.parkrun.main.fragments.results.ResultsOtherFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <FrameLayout
+        android:id="@+id/otherResultsFrame"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="Other" />
+        android:layout_height="wrap_content">
 
-</FrameLayout>
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:ignore="UselessParent">
+
+            <EditText
+                android:id="@+id/txtSearchAthlete"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_centerInParent="true"
+                android:layout_marginTop="20dp"
+                android:ems="10"
+                android:inputType="number"
+                android:hint="@string/athleteId"/>
+
+            <ProgressBar
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/progressBarSearchOther"
+                android:layout_below="@+id/txtSearchAthlete"
+                android:layout_centerInParent="true"
+                android:visibility="invisible"/>
+
+            <Button
+                android:id="@+id/btnSearchAthlete"
+                android:layout_below="@+id/txtSearchAthlete"
+                android:layout_centerInParent="true"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Search"/>
+
+        </RelativeLayout>
+    </FrameLayout>
+</ScrollView>

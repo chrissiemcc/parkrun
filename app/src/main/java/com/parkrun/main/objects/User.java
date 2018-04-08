@@ -8,7 +8,6 @@ public class User
 
     public User()
     {
-
         // Required empty public constructor
     }
 

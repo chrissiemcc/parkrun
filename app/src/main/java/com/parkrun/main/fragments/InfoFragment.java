@@ -15,8 +15,6 @@ import com.parkrun.main.R;
 
 public class InfoFragment extends Fragment
 {
-    Button btnSponsors, btnStartEvent;
-
     public InfoFragment()
     {
         // Required empty public constructor
@@ -34,8 +32,8 @@ public class InfoFragment extends Fragment
     {
         super.onViewCreated(view, savedInstanceState);
 
-        btnSponsors = getView().findViewById(R.id.btnSponsors);
-        btnStartEvent = getView().findViewById(R.id.btnStartEvent);
+        Button btnSponsors = view.findViewById(R.id.btnSponsors);
+        Button btnStartEvent = view.findViewById(R.id.btnStartEvent);
 
         btnSponsors.setOnClickListener(new View.OnClickListener()
         {
