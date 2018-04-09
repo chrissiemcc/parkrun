@@ -4,43 +4,66 @@
     android:layout_height="match_parent"
     tools:context="com.parkrun.main.fragments.results.ResultsOtherFragment">
 
-    <FrameLayout
-        android:id="@+id/otherResultsFrame"
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
         <RelativeLayout
+            android:id="@+id/nameDisplayRelative"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            tools:ignore="UselessParent">
+            android:layout_margin="6dp"
+            android:visibility="invisible">
 
-            <EditText
-                android:id="@+id/txtSearchAthlete"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentTop="true"
-                android:layout_centerInParent="true"
-                android:layout_marginTop="20dp"
-                android:ems="10"
-                android:inputType="number"
-                android:hint="@string/athleteId"/>
-
-            <ProgressBar
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/progressBarSearchOther"
-                android:layout_below="@+id/txtSearchAthlete"
-                android:layout_centerInParent="true"
-                android:visibility="invisible"/>
+            <TextView
+                android:id="@+id/tvNameDisplay"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_alignParentStart="true"
+                android:textSize="14sp" />
 
             <Button
-                android:id="@+id/btnSearchAthlete"
-                android:layout_below="@+id/txtSearchAthlete"
-                android:layout_centerInParent="true"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Search"/>
+                android:id="@+id/btnAddFriend"
+                android:layout_width="55dp"
+                android:layout_height="55dp"
+                android:layout_alignParentEnd="true"
+                android:text="Add"
+                android:textSize="12sp" />
 
         </RelativeLayout>
-    </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/otherResultsFrame"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/nameDisplayRelative"/>
+
+        <EditText
+            android:id="@+id/txtSearchAthlete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_centerInParent="true"
+            android:layout_marginTop="20dp"
+            android:ems="10"
+            android:hint="@string/athleteId"
+            android:inputType="number" />
+
+        <ProgressBar
+            android:id="@+id/progressBarSearchOther"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/txtSearchAthlete"
+            android:layout_centerInParent="true"
+            android:visibility="invisible" />
+
+        <Button
+            android:id="@+id/btnSearchAthlete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/txtSearchAthlete"
+            android:layout_centerInParent="true"
+            android:text="Search" />
+
+    </RelativeLayout>
 </ScrollView>

@@ -19,6 +19,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -41,11 +42,12 @@ public class ResultsOtherFragment extends Fragment
     // 2 = no parkrunner found
 
     private int athleteId;
+    private String athleteName;
 
     private View layout;
     private TableLayout tableLayout;
-    private TextView[] results = new TextView[7];
 
+    private TextView[] results = new TextView[7];
     private EditText txtSearchAthlete;
     private Button btnSearchAthlete;
     private ProgressBar progressBarSearchOther;
@@ -56,22 +58,29 @@ public class ResultsOtherFragment extends Fragment
         @Override
         public void handleMessage(Message msg)
         {
-            if(outcome == 0)
+            if(outcome == 0 || outcome == 1)
             {
                 progressBarSearchOther = layout.findViewById(R.id.progressBarSearchOther);
                 progressBarSearchOther.setVisibility(View.INVISIBLE);
 
-                FrameLayout myResultsFrame = layout.findViewById(R.id.otherResultsFrame);
+                RelativeLayout nameDisplayRelative = layout.findViewById(R.id.nameDisplayRelative);
+                nameDisplayRelative.setVisibility(View.VISIBLE);
 
-                myResultsFrame.addView(tableLayout);
-                //view results of parkrunner
-            }
-            else if(outcome == 1)
-            {
-                progressBarSearchOther = layout.findViewById(R.id.progressBarSearchOther);
-                progressBarSearchOther.setVisibility(View.INVISIBLE);
+                TextView tvNameDisplay = layout.findViewById(R.id.tvNameDisplay);
+                athleteName = "Results for: \n\n" + athleteName;
+                tvNameDisplay.setText(athleteName);
 
-                //parkrunner with no results found
+                if(outcome == 0)
+                {
+                    FrameLayout otherResultsFrame = layout.findViewById(R.id.otherResultsFrame);
+
+                    otherResultsFrame.addView(tableLayout);
+                    //view results of parkrunner
+                }
+                else if(outcome == 1)
+                {
+                    //parkrunner with no results found
+                }
             }
             else if(outcome == 2)
             {
@@ -162,8 +171,8 @@ public class ResultsOtherFragment extends Fragment
 
                     boolean doHeader = true;
 
-                    TableRow.LayoutParams layoutParams = new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT);
-                    layoutParams.setMargins(0,8,0,0);
+                    TableRow.LayoutParams rowParams = new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT);
+                    rowParams.setMargins(0,8,0,0);
 
                     Log.d("Testing", athleteId+" is the id");
 
@@ -177,6 +186,13 @@ public class ResultsOtherFragment extends Fragment
                     if(athleteCheck.text().charAt(0) == '-')
                     {
                         outcome = 2;
+                        //no athlete
+                    }
+                    else
+                    {
+                        int dash = athleteCheck.text().indexOf('-');
+                        athleteName = athleteCheck.text().substring(0, dash).trim();
+                        //athlete found
                     }
 
                     Element resultsTable = jsoupDocument.selectFirst("caption:contains(All Results)").parent();
@@ -209,7 +225,7 @@ public class ResultsOtherFragment extends Fragment
                             {
                                 result.setGravity(Gravity.CENTER);
                                 result.setPadding(8, 0, 8, 0);
-                                result.setLayoutParams(layoutParams); //set margins between rows
+                                result.setLayoutParams(rowParams); //set margins between rows
                                 if(doHeader) result.setBackgroundColor(Color.CYAN); //set heading background colour
                                 result.setTextSize(5, 2f);
                                 tableRow.addView(result);
