@@ -104,7 +104,6 @@ public class LoginActivity extends AppCompatActivity
         progressBarLogin.setVisibility(View.INVISIBLE);
 
         authentication = FirebaseAuth.getInstance();
-
         databaseUser = authentication.getCurrentUser();
 
         btnLogin.setOnClickListener(new View.OnClickListener()
@@ -341,7 +340,6 @@ public class LoginActivity extends AppCompatActivity
         final boolean[] wasUserCreated = {false};
 
         authentication = FirebaseAuth.getInstance();
-
         databaseUser = authentication.getCurrentUser();
 
         if (databaseUser.isAnonymous())
@@ -396,7 +394,6 @@ public class LoginActivity extends AppCompatActivity
 
         return wasUserCreated[0];
     }
-
 
     private void login()
     {

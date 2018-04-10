@@ -24,7 +24,16 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.parkrun.main.R;
+import com.parkrun.main.objects.Friend;
+import com.parkrun.main.objects.User;
 import com.parkrun.main.util.UtilAlertDialog;
 
 import org.jsoup.Jsoup;
@@ -33,6 +42,8 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ResultsOtherFragment extends Fragment
 {
@@ -41,8 +52,8 @@ public class ResultsOtherFragment extends Fragment
     // 1 = parkrunner found with no results
     // 2 = no parkrunner found
 
-    private int athleteId;
-    private String athleteName;
+    private int friendAthleteId;
+    private String friendAthleteName;
 
     private View layout;
     private TableLayout tableLayout;
@@ -51,6 +62,10 @@ public class ResultsOtherFragment extends Fragment
     private EditText txtSearchAthlete;
     private Button btnSearchAthlete;
     private ProgressBar progressBarSearchOther;
+
+    private FirebaseAuth authentication;
+    private FirebaseUser firebaseUser;
+    private FirebaseDatabase database;
 
     @SuppressLint("HandlerLeak")
     Handler handler = new Handler()
@@ -67,8 +82,7 @@ public class ResultsOtherFragment extends Fragment
                 nameDisplayRelative.setVisibility(View.VISIBLE);
 
                 TextView tvNameDisplay = layout.findViewById(R.id.tvNameDisplay);
-                athleteName = "Results for: \n\n" + athleteName;
-                tvNameDisplay.setText(athleteName);
+                tvNameDisplay.append(friendAthleteName);
 
                 if(outcome == 0)
                 {
@@ -108,6 +122,7 @@ public class ResultsOtherFragment extends Fragment
         btnSearchAthlete = layout.findViewById(R.id.btnSearchAthlete);
         txtSearchAthlete = layout.findViewById(R.id.txtSearchAthlete);
         progressBarSearchOther = layout.findViewById(R.id.progressBarSearchOther);
+        Button btnAddFriend = layout.findViewById(R.id.btnAddFriend);
 
         btnSearchAthlete.setEnabled(false);
 
@@ -144,12 +159,57 @@ public class ResultsOtherFragment extends Fragment
             @Override
             public void onClick(View view)
             {
-                athleteId = Integer.parseInt(txtSearchAthlete.getText().toString());
+                friendAthleteId = Integer.parseInt(txtSearchAthlete.getText().toString());
 
                 closeKeyboard();
                 searchFormVisibility(false);
 
                 runJsoupThread();
+            }
+        });
+
+        btnAddFriend.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                authentication = FirebaseAuth.getInstance();
+                firebaseUser = authentication.getCurrentUser();
+                database = FirebaseDatabase.getInstance();
+                DatabaseReference databaseReference = database.getReference("users");
+
+                databaseReference.addListenerForSingleValueEvent(new ValueEventListener()
+                {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot)
+                    {
+                        Iterable<DataSnapshot> children = dataSnapshot.getChildren();
+
+                        for (DataSnapshot child : children)
+                        {
+                            User user = child.getValue(User.class);
+                            if(user != null && user.getEmail().equals(firebaseUser.getEmail()))
+                            {
+                                Friend friend = new Friend(friendAthleteName, friendAthleteId);
+                                ArrayList<Friend> friends = new ArrayList<>();
+                                DatabaseReference userReference = database.getReference("users");
+                                if (user.getFriends() != null)
+                                {
+                                    friends = (ArrayList<Friend>) user.getFriends();
+                                }
+                                //if not null, friend list exists
+                                //if null, friend list does not exist
+                                friends.add(friend);
+                                userReference.child(firebaseUser.getUid()).child("friends").setValue(friends);
+                            }
+                        }
+                    }
+                    @Override
+                    public void onCancelled(DatabaseError databaseError)
+                    {
+
+                    }
+                });
             }
         });
 
@@ -174,9 +234,9 @@ public class ResultsOtherFragment extends Fragment
                     TableRow.LayoutParams rowParams = new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT);
                     rowParams.setMargins(0,8,0,0);
 
-                    Log.d("Testing", athleteId+" is the id");
+                    Log.d("Testing", friendAthleteId +" is the id");
 
-                    Document jsoupDocument = Jsoup.connect("http://www.parkrun.org.uk/results/athleteeventresultshistory/?athleteNumber="+athleteId+"&eventNumber=0").get();
+                    Document jsoupDocument = Jsoup.connect("http://www.parkrun.org.uk/results/athleteeventresultshistory/?athleteNumber="+ friendAthleteId +"&eventNumber=0").get();
                     // Retrieve parkrun results html page
 
                     Element athleteCheck = jsoupDocument.selectFirst("h2");
@@ -191,7 +251,7 @@ public class ResultsOtherFragment extends Fragment
                     else
                     {
                         int dash = athleteCheck.text().indexOf('-');
-                        athleteName = athleteCheck.text().substring(0, dash).trim();
+                        friendAthleteName = athleteCheck.text().substring(0, dash).trim();
                         //athlete found
                     }
 

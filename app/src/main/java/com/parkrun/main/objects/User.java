@@ -1,10 +1,14 @@
 package com.parkrun.main.objects;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class User
 {
     private int athleteId, DOBDay, DOBYear, runningClubId;
     private String firstName, lastName, gender, email, DOBMonth, runningClubName, parkrunName, postcode, ICEName, ICEContact, medicalInfo;
     private boolean director;
+    private List<Friend> friends;
 
     public User()
     {
@@ -29,6 +33,7 @@ public class User
         this.ICEName = ICEName;
         this.ICEContact = ICEContact;
         this.medicalInfo = medicalInfo;
+        this.friends = new ArrayList<>();
         this.director = false;
     }
 
@@ -110,5 +115,15 @@ public class User
     public String getMedicalInfo()
     {
         return this.medicalInfo;
+    }
+
+    public List<Friend> getFriends()
+    {
+        return friends;
+    }
+
+    public void setFriends(List<Friend> friends)
+    {
+        this.friends = friends;
     }
 }
