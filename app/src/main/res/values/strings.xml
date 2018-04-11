@@ -37,4 +37,6 @@
     <string name="other">Other</string>
     <string name="sponsors">Sponsors</string>
     <string name="start_new_event">Start new event</string>
+    <string name="remove">Remove</string>
+    <string name="add">Add</string>
 </resources>

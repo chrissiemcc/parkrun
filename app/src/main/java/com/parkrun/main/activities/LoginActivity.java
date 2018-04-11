@@ -51,6 +51,9 @@ import javax.net.ssl.HttpsURLConnection;
 
 public class LoginActivity extends AppCompatActivity
 {
+    int athleteId;
+    String passString;
+
     private Button btnLogin, btnRegister;
     private EditText txtAthleteIdLogin, txtPasswordLogin;
     private FirebaseAuth authentication;
@@ -58,6 +61,7 @@ public class LoginActivity extends AppCompatActivity
     private ProgressBar progressBarLogin;
     private TextView lblAthleteId, lblPassword;
     private final UtilAlertDialog utilAlertDialog = new UtilAlertDialog(this);
+    private DatabaseReference databaseReference;
 
     private boolean isError = false; //class scope boolean for the handler of login thread to check if there was a login error
 
@@ -75,9 +79,7 @@ public class LoginActivity extends AppCompatActivity
             }
             else
             {
-                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                startActivity(intent);
-                finish();
+                changeActivity();
             }
         }
     };
@@ -105,6 +107,7 @@ public class LoginActivity extends AppCompatActivity
 
         authentication = FirebaseAuth.getInstance();
         databaseUser = authentication.getCurrentUser();
+        databaseReference = FirebaseDatabase.getInstance().getReference("users");
 
         btnLogin.setOnClickListener(new View.OnClickListener()
         {
@@ -114,7 +117,10 @@ public class LoginActivity extends AppCompatActivity
                 closeKeyboard();
                 loginFormVisibility(false);
 
-                websiteLoginThread();
+                athleteId = Integer.parseInt(txtAthleteIdLogin.getText().toString().trim());
+                passString = txtPasswordLogin.getText().toString();
+
+                loginThread();
             }
         });
 
@@ -213,13 +219,10 @@ public class LoginActivity extends AppCompatActivity
         }
     }
 
-    private void websiteLoginThread()
+    private void loginThread()
     {
         final boolean[] correctLogin = {false};
         final boolean[] wasUserCreated = {false};
-
-        final int athleteId = Integer.parseInt(txtAthleteIdLogin.getText().toString().trim());
-        final String passString = txtPasswordLogin.getText().toString();
 
         Runnable loginRun = new Runnable()
         {
@@ -328,6 +331,7 @@ public class LoginActivity extends AppCompatActivity
 
         Thread loginThread = new Thread(loginRun);
         loginThread.start();
+
     }
 
     private boolean createUser(final int athleteId, final String email, String password, final String firstName, final String lastName, final String gender,
@@ -397,14 +401,10 @@ public class LoginActivity extends AppCompatActivity
 
     private void login()
     {
-        authentication = FirebaseAuth.getInstance();
-
         databaseUser = authentication.getCurrentUser();
 
         final int athleteId = Integer.parseInt(txtAthleteIdLogin.getText().toString().trim());
         final String passString = txtPasswordLogin.getText().toString();
-
-        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("users");
 
         databaseReference.addListenerForSingleValueEvent(new ValueEventListener()
         {
@@ -445,6 +445,29 @@ public class LoginActivity extends AppCompatActivity
 
             }
         });
+
+        twoSecondSleep();
+    }
+
+    private void twoSecondSleep()
+    {
+        try
+        {
+            Thread.sleep(2000);
+        }
+        catch (InterruptedException e)
+        {
+            e.printStackTrace();
+        }
+        // This sleep is to stop the home fragment displaying "Welcome null!" due to async login
+        // having not finished yet
+    }
+
+    private void changeActivity()
+    {
+        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+        startActivity(intent);
+        finish();
     }
 
     private void closeKeyboard()

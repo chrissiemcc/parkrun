@@ -3,6 +3,7 @@ package com.parkrun.main.fragments;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -34,13 +35,13 @@ public class HomeFragment extends Fragment
 
         TextView tvHome = view.findViewById(R.id.tvHome);
 
-        final FirebaseAuth authentication = FirebaseAuth.getInstance();
-        final FirebaseUser firebaseUser = authentication.getCurrentUser();
+        FirebaseAuth authentication = FirebaseAuth.getInstance();
+        FirebaseUser firebaseUser = authentication.getCurrentUser();
+
+        Log.d("Debug", "Home fragment arrived!");
 
         String welcome = "Welcome " + firebaseUser.getDisplayName() + "!";
         tvHome.setText(welcome);
-
-
     }
 
     @Override
