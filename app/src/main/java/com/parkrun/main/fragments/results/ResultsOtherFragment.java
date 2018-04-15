@@ -64,9 +64,7 @@ public class ResultsOtherFragment extends Fragment
     private Button btnSearchAthlete, btnAddFriend;
     private ProgressBar progressBarSearchOther;
 
-    private FirebaseAuth authentication;
     private FirebaseUser firebaseUser;
-    private FirebaseDatabase database;
     private DatabaseReference databaseReference, friendsReference;
 
     private UtilAlertDialog utilAlertDialog;
@@ -77,12 +75,6 @@ public class ResultsOtherFragment extends Fragment
         @Override
         public void handleMessage(Message msg)
         {
-            while(true)
-            {
-                if (friendSearchComplete) break;
-                //wait for the database friend search to complete if necessary
-            }
-
             if(outcome == 0 || outcome == 1)
             {
                 progressBarSearchOther = layout.findViewById(R.id.progressBarSearchOther);
@@ -134,9 +126,9 @@ public class ResultsOtherFragment extends Fragment
         progressBarSearchOther = layout.findViewById(R.id.progressBarSearchOther);
         btnAddFriend = layout.findViewById(R.id.btnAddFriend);
 
-        authentication = FirebaseAuth.getInstance();
+        FirebaseAuth authentication = FirebaseAuth.getInstance();
         firebaseUser = authentication.getCurrentUser();
-        database = FirebaseDatabase.getInstance();
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
         databaseReference = database.getReference("users");
         friendsReference = databaseReference.child(firebaseUser.getUid()).child("friends");
 
@@ -180,10 +172,10 @@ public class ResultsOtherFragment extends Fragment
                 friendAthleteId = Integer.parseInt(txtSearchAthlete.getText().toString());
                 friendSearchComplete = false;
 
+                outcome = 0; //reset the outcome
+
                 closeKeyboard();
                 searchFormVisibility(false);
-
-                runJsoupThread();
 
                 friendsReference.addListenerForSingleValueEvent(new ValueEventListener()
                 {
@@ -219,6 +211,8 @@ public class ResultsOtherFragment extends Fragment
 
                     }
                 });
+
+                runJsoupThread();
             }
         });
 
@@ -314,6 +308,12 @@ public class ResultsOtherFragment extends Fragment
             {
                 try
                 {
+                    while(true)
+                    {
+                        if (friendSearchComplete) break;
+                        //wait for the database friend search to complete if necessary
+                    }
+
                     tableLayout = new TableLayout(getActivity().getApplicationContext());
 
                     TableRow tableRow;
