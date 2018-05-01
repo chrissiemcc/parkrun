@@ -33,6 +33,8 @@ public class HomeFragment extends Fragment
     {
         super.onViewCreated(view, savedInstanceState);
 
+        weatherThread();
+
         TextView tvHome = view.findViewById(R.id.tvHome);
 
         FirebaseAuth authentication = FirebaseAuth.getInstance();
@@ -58,4 +60,19 @@ public class HomeFragment extends Fragment
         }
     }
     //To make sure the item checked in the navigation menu is always correct, even on back press
+
+    private void weatherThread()
+    {
+        Runnable weatherRunnable = new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                //weather code
+            }
+        };
+
+        Thread weatherThread = new Thread(weatherRunnable);
+        weatherThread.start();
+    }
 }
