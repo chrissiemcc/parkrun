@@ -269,7 +269,6 @@ public class ResultsOtherFragment extends Fragment
                                     Friend friend = new Friend(friendAthleteName, friendAthleteId);
                                     ArrayList<Friend> friends = new ArrayList<>();
 
-
                                     if (user.getFriends() != null)
                                     {
                                         friends = (ArrayList<Friend>) user.getFriends();
@@ -325,7 +324,7 @@ public class ResultsOtherFragment extends Fragment
 
                     Log.d("Testing", friendAthleteId +" is the id");
 
-                    Document jsoupDocument = Jsoup.connect("http://www.parkrun.org.uk/results/athleteeventresultshistory/?athleteNumber="+ friendAthleteId +"&eventNumber=0").get();
+                    Document jsoupDocument = Jsoup.connect("http://www.parkrun.org.uk/results/athleteeventresultshistory/?athleteNumber="+friendAthleteId+"&eventNumber=0").get();
                     // Retrieve parkrun results html page
 
                     Element athleteCheck = jsoupDocument.selectFirst("h2");

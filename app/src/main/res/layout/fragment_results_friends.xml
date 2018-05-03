@@ -4,21 +4,54 @@
     android:layout_height="match_parent"
     tools:context="com.parkrun.main.fragments.results.ResultsFriendsFragment">
 
-    <FrameLayout
-        android:id="@+id/friendResultsFrame"
+    <RelativeLayout
+        android:id="@+id/friendRelative"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_margin="6dp">
 
-        <TextView
-            android:id="@+id/tvNoFriends"
+        <RelativeLayout
+            android:id="@+id/friendDisplayRelative"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="25dp"
-            android:fontFamily="@font/salsa"
-            android:text="You have no parkrun buddies added yet! Go to the 'other' tab to search for other parkrunners!"
-            android:textAlignment="center"
-            android:textSize="18sp"
-            android:visibility="invisible"/>
+            android:layout_margin="6dp"
+            android:visibility="invisible">
 
-    </FrameLayout>
+            <TextView
+                android:id="@+id/tvNoFriends"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="6dp"
+                android:fontFamily="@font/salsa"
+                android:text="You have no parkrun buddies added yet! Go to the 'other' tab to search for other parkrunners!"
+                android:textAlignment="center"
+                android:textSize="14sp"
+                android:visibility="invisible" />
+
+            <TextView
+                android:id="@+id/tvFriendNameDisplay"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_alignParentStart="true"
+                android:text="Results for:\n\n"
+                android:textSize="14sp"
+                android:visibility="invisible" />
+
+            <Button
+                android:id="@+id/btnRemoveFriend"
+                android:layout_width="80dp"
+                android:layout_height="40dp"
+                android:layout_alignParentEnd="true"
+                android:textSize="12sp"
+                android:text="Remove"
+                android:visibility="invisible"/>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/friendResultsRelative"
+            android:layout_below="@+id/friendDisplayRelative">
+        </RelativeLayout>
+    </RelativeLayout>
 </ScrollView>
