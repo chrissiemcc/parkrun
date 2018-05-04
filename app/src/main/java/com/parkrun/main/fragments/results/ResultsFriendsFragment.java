@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
@@ -28,6 +29,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.parkrun.main.R;
 import com.parkrun.main.objects.Friend;
 import com.parkrun.main.objects.User;
+import com.parkrun.main.util.UtilAlertDialog;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -48,8 +50,12 @@ public class ResultsFriendsFragment extends Fragment
 
     private TextView[] results = new TextView[7];
 
+    private Button btnRemoveFriend;
+
     private FirebaseUser firebaseUser;
-    private DatabaseReference databaseReference;
+    private DatabaseReference databaseReference, friendsReference;
+
+    private UtilAlertDialog utilAlertDialog;
 
     @SuppressLint("HandlerLeak")
     Handler handler = new Handler()
@@ -59,6 +65,8 @@ public class ResultsFriendsFragment extends Fragment
         {
             friendResultsRelative = layout.findViewById(R.id.friendResultsRelative);
             friendResultsRelative.addView(tableLayout);
+
+            setFrameView(1);
         }
     };
 
@@ -77,6 +85,11 @@ public class ResultsFriendsFragment extends Fragment
         firebaseUser = authentication.getCurrentUser();
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         databaseReference = database.getReference("users");
+        friendsReference = databaseReference.child(firebaseUser.getUid()).child("friends");
+
+        btnRemoveFriend = layout.findViewById(R.id.btnRemoveFriend);
+
+        utilAlertDialog = new UtilAlertDialog(getActivity().getApplicationContext());
 
         databaseReference.addListenerForSingleValueEvent(new ValueEventListener()
         {
@@ -112,13 +125,14 @@ public class ResultsFriendsFragment extends Fragment
                                     friendAthleteName = tvFriend.getText().toString();
                                     friendAthleteId = view.getId();
                                     setFrameView(2);
+
                                     runJsoupThread();
                                 }
                             });
                             tableRow.addView(tvFriend);
                             friendTableLayout.addView(tableRow);
                         }
-                        setFrameView(1);
+                        setFrameView(3);
                     }
                     else
                     {
@@ -131,6 +145,65 @@ public class ResultsFriendsFragment extends Fragment
             public void onCancelled(DatabaseError databaseError)
             {
 
+            }
+        });
+
+        btnRemoveFriend.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                databaseReference.addListenerForSingleValueEvent(new ValueEventListener()
+                {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot)
+                    {
+                        Iterable<DataSnapshot> children = dataSnapshot.getChildren();
+
+                        for (DataSnapshot child : children)
+                        {
+                            User user = child.getValue(User.class);
+                            if(user != null && user.getEmail().equals(firebaseUser.getEmail()))
+                            {
+                                friendsReference.addListenerForSingleValueEvent(new ValueEventListener()
+                                {
+                                    @Override
+                                    public void onDataChange(DataSnapshot dataSnapshot)
+                                    {
+                                        Iterable<DataSnapshot> children = dataSnapshot.getChildren();
+
+                                        for (DataSnapshot child : children)
+                                        {
+                                            Friend friend = child.getValue(Friend.class);
+
+                                            if(friendAthleteId == friend.getAthleteId())
+                                            {
+                                                btnRemoveFriend.setText(R.string.add);
+
+                                                friendsReference.child(child.getKey()).removeValue();
+
+                                                utilAlertDialog.getAlertDialog("Friend removed", friendAthleteName+" has been removed from your friend list", getActivity());
+
+                                                btnRemoveFriend.setVisibility(View.INVISIBLE);
+                                            }
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onCancelled(DatabaseError databaseError)
+                                    {
+
+                                    }
+                                });
+                            }
+                        }
+                    }
+                    @Override
+                    public void onCancelled(DatabaseError databaseError)
+                    {
+
+                    }
+                });
             }
         });
 
@@ -223,30 +296,35 @@ public class ResultsFriendsFragment extends Fragment
 
     private void setFrameView(int choice)
     {
+        ProgressBar progressBarFriend = layout.findViewById(R.id.progressBarFriend);
         switch(choice)
         {
-            case 0:
+            case 0: //Display NO FRIENDS MESSAGE
                 TextView tvNoFriends = layout.findViewById(R.id.tvNoFriends);
                 tvNoFriends.setVisibility(View.VISIBLE);
                 break;
-            case 1:
-                friendDisplayRelative = layout.findViewById(R.id.friendDisplayRelative);
-                friendDisplayRelative.addView(friendTableLayout);
-                friendDisplayRelative.setVisibility(View.VISIBLE);
-                break;
-            case 2:
-                friendDisplayRelative = layout.findViewById(R.id.friendDisplayRelative);
-                friendDisplayRelative.setVisibility(View.VISIBLE);
+            case 1: //Display FRIEND RESULTS TABLE
+                progressBarFriend.setVisibility(View.INVISIBLE);
 
                 TextView tvFriendNameDisplay = layout.findViewById(R.id.tvFriendNameDisplay);
                 tvFriendNameDisplay.append(friendAthleteName);
                 tvFriendNameDisplay.setVisibility(View.VISIBLE);
                 Button btnRemoveFriend = layout.findViewById(R.id.btnRemoveFriend);
                 btnRemoveFriend.setVisibility(View.VISIBLE);
+                break;
+            case 2: //Display PROGRESS BAR
                 friendTableLayout.setVisibility(View.INVISIBLE);
+
+                progressBarFriend.setVisibility(View.VISIBLE);
+                break;
+            case 3: //Display FRIEND LIST
+                friendDisplayRelative = layout.findViewById(R.id.friendDisplayRelative);
+                friendDisplayRelative.addView(friendTableLayout);
+                friendDisplayRelative.setVisibility(View.VISIBLE);
                 break;
             default:
                 break;
         }
     }
+    //This method switches the view of the friend tab
 }

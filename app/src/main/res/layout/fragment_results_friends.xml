@@ -7,8 +7,7 @@
     <RelativeLayout
         android:id="@+id/friendRelative"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="6dp">
+        android:layout_height="wrap_content">
 
         <RelativeLayout
             android:id="@+id/friendDisplayRelative"
@@ -23,7 +22,7 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="6dp"
                 android:fontFamily="@font/salsa"
-                android:text="You have no parkrun buddies added yet! Go to the 'other' tab to search for other parkrunners!"
+                android:text="You have no parkrun buddies added yet! Go to the 'other' tab to search for your friends!"
                 android:textAlignment="center"
                 android:textSize="14sp"
                 android:visibility="invisible" />
@@ -42,16 +41,24 @@
                 android:layout_width="80dp"
                 android:layout_height="40dp"
                 android:layout_alignParentEnd="true"
-                android:textSize="12sp"
                 android:text="Remove"
-                android:visibility="invisible"/>
+                android:textSize="12sp"
+                android:visibility="invisible" />
+
+            <ProgressBar
+                android:id="@+id/progressBarFriend"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:visibility="invisible" />
         </RelativeLayout>
 
         <RelativeLayout
+            android:id="@+id/friendResultsRelative"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:id="@+id/friendResultsRelative"
             android:layout_below="@+id/friendDisplayRelative">
+
         </RelativeLayout>
     </RelativeLayout>
 </ScrollView>
