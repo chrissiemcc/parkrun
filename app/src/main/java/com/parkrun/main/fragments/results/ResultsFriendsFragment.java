@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.Fragment;
+import android.text.Layout;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -105,6 +106,7 @@ public class ResultsFriendsFragment extends Fragment
                     {
                         friendTableLayout = new TableLayout(getActivity().getApplicationContext());
                         TableRow tableRow;
+                        int index = 1;
 
                         ArrayList<Friend> friends = (ArrayList<Friend>) user.getFriends();
                         for(final Friend friend : friends)
@@ -114,6 +116,23 @@ public class ResultsFriendsFragment extends Fragment
                             String friendDetails = friendAthleteName;
                             tableRow = new TableRow(getActivity().getApplicationContext());
                             TextView tvFriend = new TextView(getActivity().getApplicationContext());
+
+                            //Appearance details
+                            TableRow.LayoutParams rowParams = new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT);
+                            if(friends.size() != index)
+                            {
+                                rowParams.setMargins(4,4,4,0);
+                            }
+                            else
+                            {
+                                rowParams.setMargins(4,4,4,4);
+                            } //So as the last element makes a bottom border instead of just top
+                            tvFriend.setLayoutParams(rowParams);
+                            tvFriend.setBackgroundColor(Color.WHITE);
+
+                            tvFriend.setPadding(10, 0, 10, 0);
+                            //Give space to the left and right edges of the text
+
                             tvFriend.setText(friendDetails);
                             tvFriend.setId(friendAthleteId);
                             tvFriend.setOnClickListener(new View.OnClickListener()
@@ -131,7 +150,11 @@ public class ResultsFriendsFragment extends Fragment
                             });
                             tableRow.addView(tvFriend);
                             friendTableLayout.addView(tableRow);
+
+                            index++;
                         }
+
+                        friendTableLayout.setBackgroundColor(Color.BLACK);
                         setFrameView(3);
                     }
                     else
