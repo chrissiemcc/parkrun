@@ -6,14 +6,12 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.Fragment;
-import android.text.Layout;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TableLayout;
@@ -43,7 +41,7 @@ import java.util.ArrayList;
 public class ResultsFriendsFragment extends Fragment
 {
     private View layout;
-    private TableLayout tableLayout, friendTableLayout;
+    private TableLayout tableLayout, friendListLayout;
     private RelativeLayout friendDisplayRelative, friendResultsRelative;
 
     private int friendAthleteId;
@@ -51,7 +49,7 @@ public class ResultsFriendsFragment extends Fragment
 
     private TextView[] results = new TextView[7];
 
-    private Button btnRemoveFriend;
+    private Button btnRemoveFriend, btnBackFriend;
 
     private FirebaseUser firebaseUser;
     private DatabaseReference databaseReference, friendsReference;
@@ -89,85 +87,24 @@ public class ResultsFriendsFragment extends Fragment
         friendsReference = databaseReference.child(firebaseUser.getUid()).child("friends");
 
         btnRemoveFriend = layout.findViewById(R.id.btnRemoveFriend);
+        btnBackFriend = layout.findViewById(R.id.btnBackFriend);
 
         utilAlertDialog = new UtilAlertDialog(getActivity().getApplicationContext());
 
-        databaseReference.addListenerForSingleValueEvent(new ValueEventListener()
+        generateFriendList(0);
+
+        btnBackFriend.setOnClickListener(new View.OnClickListener()
         {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot)
+            public void onClick(View view)
             {
-                Iterable<DataSnapshot> children = dataSnapshot.getChildren();
+                setFrameView(4);
 
-                for(DataSnapshot child : children)
-                {
-                    User user = child.getValue(User.class);
-                    if(user.getFriends() != null)
-                    {
-                        friendTableLayout = new TableLayout(getActivity().getApplicationContext());
-                        TableRow tableRow;
-                        int index = 1;
+                friendListLayout.removeAllViews();
+                friendResultsRelative.removeAllViews();
+                //clear the tab
 
-                        ArrayList<Friend> friends = (ArrayList<Friend>) user.getFriends();
-                        for(final Friend friend : friends)
-                        {
-                            friendAthleteId = friend.getAthleteId();
-                            friendAthleteName = friend.getName();
-                            String friendDetails = friendAthleteName;
-                            tableRow = new TableRow(getActivity().getApplicationContext());
-                            TextView tvFriend = new TextView(getActivity().getApplicationContext());
-
-                            //Appearance details
-                            TableRow.LayoutParams rowParams = new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT);
-                            if(friends.size() != index)
-                            {
-                                rowParams.setMargins(4,4,4,0);
-                            }
-                            else
-                            {
-                                rowParams.setMargins(4,4,4,4);
-                            } //So as the last element makes a bottom border instead of just top
-                            tvFriend.setLayoutParams(rowParams);
-                            tvFriend.setBackgroundColor(Color.WHITE);
-
-                            tvFriend.setPadding(10, 0, 10, 0);
-                            //Give space to the left and right edges of the text
-
-                            tvFriend.setText(friendDetails);
-                            tvFriend.setId(friendAthleteId);
-                            tvFriend.setOnClickListener(new View.OnClickListener()
-                            {
-                                @Override
-                                public void onClick(View view)
-                                {
-                                    TextView tvFriend = (TextView) view;
-                                    friendAthleteName = tvFriend.getText().toString();
-                                    friendAthleteId = view.getId();
-                                    setFrameView(2);
-
-                                    runJsoupThread();
-                                }
-                            });
-                            tableRow.addView(tvFriend);
-                            friendTableLayout.addView(tableRow);
-
-                            index++;
-                        }
-
-                        friendTableLayout.setBackgroundColor(Color.BLACK);
-                        setFrameView(3);
-                    }
-                    else
-                    {
-                        setFrameView(0);
-                    }
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError)
-            {
-
+                generateFriendList(1);
             }
         });
 
@@ -320,34 +257,145 @@ public class ResultsFriendsFragment extends Fragment
     private void setFrameView(int choice)
     {
         ProgressBar progressBarFriend = layout.findViewById(R.id.progressBarFriend);
+        TextView tvFriendNameDisplay = layout.findViewById(R.id.tvFriendNameDisplay);
+        Button btnRemoveFriend = layout.findViewById(R.id.btnRemoveFriend);
+        Button btnBackFriend = layout.findViewById(R.id.btnBackFriend);
+        friendDisplayRelative = layout.findViewById(R.id.friendDisplayRelative);
+
         switch(choice)
         {
             case 0: //Display NO FRIENDS MESSAGE
+                progressBarFriend.setVisibility(View.INVISIBLE);
+
                 TextView tvNoFriends = layout.findViewById(R.id.tvNoFriends);
                 tvNoFriends.setVisibility(View.VISIBLE);
                 break;
             case 1: //Display FRIEND RESULTS TABLE
                 progressBarFriend.setVisibility(View.INVISIBLE);
 
-                TextView tvFriendNameDisplay = layout.findViewById(R.id.tvFriendNameDisplay);
                 tvFriendNameDisplay.append(friendAthleteName);
                 tvFriendNameDisplay.setVisibility(View.VISIBLE);
-                Button btnRemoveFriend = layout.findViewById(R.id.btnRemoveFriend);
                 btnRemoveFriend.setVisibility(View.VISIBLE);
+                btnBackFriend.setVisibility(View.VISIBLE);
                 break;
             case 2: //Display PROGRESS BAR
-                friendTableLayout.setVisibility(View.INVISIBLE);
+                friendListLayout.setVisibility(View.INVISIBLE);
 
                 progressBarFriend.setVisibility(View.VISIBLE);
                 break;
             case 3: //Display FRIEND LIST
-                friendDisplayRelative = layout.findViewById(R.id.friendDisplayRelative);
-                friendDisplayRelative.addView(friendTableLayout);
-                friendDisplayRelative.setVisibility(View.VISIBLE);
+                friendDisplayRelative.addView(friendListLayout);
+                break;
+            case 4: //FRIEND RESULTS TABLE > FRIEND LIST - Stage 1
+                progressBarFriend.setVisibility(View.VISIBLE);
+
+                tvFriendNameDisplay.setText(""); //empty text
+                tvFriendNameDisplay.setVisibility(View.INVISIBLE);
+                btnRemoveFriend.setVisibility(View.INVISIBLE);
+                btnBackFriend.setVisibility(View.INVISIBLE);
+                break;
+            case 5: //FRIEND RESULTS TABLE > FRIEND LIST - Stage 2
+                progressBarFriend.setVisibility(View.INVISIBLE);
+
+                friendListLayout.setVisibility(View.VISIBLE);
+                friendDisplayRelative.addView(friendListLayout);
                 break;
             default:
                 break;
         }
     }
     //This method switches the view of the friend tab
+
+    private void generateFriendList(final int path)
+    {
+        //path = 0 - friend list>friend results
+        //path = 1 - friend results>friend list
+        databaseReference.addListenerForSingleValueEvent(new ValueEventListener()
+        {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot)
+            {
+                Iterable<DataSnapshot> children = dataSnapshot.getChildren();
+
+                for(DataSnapshot child : children)
+                {
+                    User user = child.getValue(User.class);
+                    if(user.getFriends() != null)
+                    {
+                        friendListLayout = new TableLayout(getActivity().getApplicationContext());
+                        TableRow tableRow;
+                        int index = 1;
+
+                        ArrayList<Friend> friends = (ArrayList<Friend>) user.getFriends();
+                        for(final Friend friend : friends)
+                        {
+                            if(friend != null)
+                            {
+                                friendAthleteId = friend.getAthleteId();
+                                friendAthleteName = friend.getName();
+                                String friendDetails = friendAthleteName;
+                                tableRow = new TableRow(getActivity().getApplicationContext());
+                                TextView tvFriend = new TextView(getActivity().getApplicationContext());
+
+                                //Appearance details
+                                TableRow.LayoutParams rowParams = new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT);
+                                if(friends.size() != index)
+                                {
+                                    rowParams.setMargins(4,4,4,0);
+                                }
+                                else
+                                {
+                                    rowParams.setMargins(4,4,4,4);
+                                } //So as the last element makes a bottom border instead of just top
+                                tvFriend.setLayoutParams(rowParams);
+                                tvFriend.setBackgroundColor(Color.WHITE);
+
+                                tvFriend.setPadding(10, 0, 10, 0);
+                                //Give space to the left and right edges of the text
+
+                                tvFriend.setText(friendDetails);
+                                tvFriend.setId(friendAthleteId);
+                                tvFriend.setOnClickListener(new View.OnClickListener()
+                                {
+                                    @Override
+                                    public void onClick(View view)
+                                    {
+                                        TextView tvFriend = (TextView) view;
+                                        friendAthleteName = tvFriend.getText().toString();
+                                        friendAthleteId = view.getId();
+                                        setFrameView(2);
+
+                                        runJsoupThread();
+                                    }
+                                });
+                                tableRow.addView(tvFriend);
+                                friendListLayout.addView(tableRow);
+                            }
+                            index++;
+                        }
+
+                        friendListLayout.setBackgroundColor(Color.BLACK);
+                        if(path == 0)
+                        {
+                            setFrameView(3);
+                        }
+                        else
+                        {
+                            setFrameView(5);
+                        }
+                    }
+                    else
+                    {
+                        setFrameView(0);
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError)
+            {
+
+            }
+        });
+    }// This method generates the friend list
 }
