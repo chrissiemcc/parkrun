@@ -19,7 +19,10 @@
                 android:id="@+id/tvNoFriends"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="6dp"
+                android:layout_marginBottom="6dp"
+                android:layout_marginStart="6dp"
+                android:layout_marginEnd="95dp"
+                android:layout_marginTop="6dp"
                 android:fontFamily="@font/salsa"
                 android:text="You have no parkrun buddies added yet! Go to the 'other' tab to search for your friends!"
                 android:textAlignment="center"
@@ -31,7 +34,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_alignParentStart="true"
-                android:text="Results for:\n\n"
                 android:textSize="14sp"
                 android:visibility="invisible" />
 
@@ -53,6 +55,15 @@
                 android:textSize="12sp"
                 android:visibility="invisible" />
 
+            <Button
+                android:id="@+id/btnRefreshFriend"
+                android:layout_width="80dp"
+                android:layout_height="40dp"
+                android:layout_alignParentEnd="true"
+                android:text="Refresh"
+                android:textSize="12sp"
+                android:visibility="invisible" />
+
             <ProgressBar
                 android:id="@+id/progressBarFriend"
                 android:layout_width="wrap_content"
@@ -66,6 +77,15 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_below="@+id/friendDisplayRelative">
+
+            <TextView
+                android:id="@+id/tvNoResultsFriend"
+                android:layout_centerInParent="true"
+                android:fontFamily="@font/salsa"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="invisible"
+                android:text="No results were found!" />
 
         </RelativeLayout>
     </RelativeLayout>

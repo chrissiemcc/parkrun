@@ -63,7 +63,7 @@ public class ResultsYouFragment extends Fragment
             }
             else
             {
-                TextView noResults = layout.findViewById(R.id.tvNoResults);
+                TextView noResults = layout.findViewById(R.id.tvNoResultsYou);
                 myResultsProgress = layout.findViewById(R.id.myResultsProgress);
                 myResultsProgress.setVisibility(View.INVISIBLE);
                 noResults.setVisibility(View.VISIBLE);

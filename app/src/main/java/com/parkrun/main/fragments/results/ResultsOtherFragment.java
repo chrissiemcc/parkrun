@@ -43,7 +43,6 @@ import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 
 public class ResultsOtherFragment extends Fragment
 {
@@ -58,10 +57,14 @@ public class ResultsOtherFragment extends Fragment
 
     private View layout;
     private TableLayout tableLayout;
+    private RelativeLayout nameDisplayRelative;
+    private FrameLayout otherResultsFrame;
 
+    private TextView tvNoResults;
     private TextView[] results = new TextView[7];
     private EditText txtSearchAthlete;
-    private Button btnSearchAthlete, btnAddFriend;
+    private Button btnSearchAthlete;
+    private Button btnAddFriend;
     private ProgressBar progressBarSearchOther;
 
     private FirebaseUser firebaseUser;
@@ -80,22 +83,21 @@ public class ResultsOtherFragment extends Fragment
                 progressBarSearchOther = layout.findViewById(R.id.progressBarSearchOther);
                 progressBarSearchOther.setVisibility(View.INVISIBLE);
 
-                RelativeLayout nameDisplayRelative = layout.findViewById(R.id.nameDisplayRelative);
                 nameDisplayRelative.setVisibility(View.VISIBLE);
 
                 TextView tvNameDisplay = layout.findViewById(R.id.tvNameDisplay);
-                tvNameDisplay.append(friendAthleteName);
+
+                String nameDisplay = "Results for:\n\n" + friendAthleteName;
+                tvNameDisplay.setText(nameDisplay);
 
                 if(outcome == 0)
                 {
-                    FrameLayout otherResultsFrame = layout.findViewById(R.id.otherResultsFrame);
-
                     otherResultsFrame.addView(tableLayout);
                     //view results of parkrunner
                 }
                 else if(outcome == 1)
                 {
-                    //parkrunner with no results found
+                    tvNoResults.setVisibility(View.VISIBLE);
                 }
             }
             else if(outcome == 2)
@@ -123,8 +125,13 @@ public class ResultsOtherFragment extends Fragment
 
         btnSearchAthlete = layout.findViewById(R.id.btnSearchAthlete);
         txtSearchAthlete = layout.findViewById(R.id.txtSearchAthlete);
+        tvNoResults = layout.findViewById(R.id.tvNoResultsOther);
         progressBarSearchOther = layout.findViewById(R.id.progressBarSearchOther);
         btnAddFriend = layout.findViewById(R.id.btnAddFriend);
+        Button btnBackOther = layout.findViewById(R.id.btnBackOther);
+
+        nameDisplayRelative = layout.findViewById(R.id.nameDisplayRelative);
+        otherResultsFrame = layout.findViewById(R.id.otherResultsFrame);
 
         FirebaseAuth authentication = FirebaseAuth.getInstance();
         firebaseUser = authentication.getCurrentUser();
@@ -176,6 +183,8 @@ public class ResultsOtherFragment extends Fragment
 
                 closeKeyboard();
                 searchFormVisibility(false);
+
+                txtSearchAthlete.setText("");
 
                 friendsReference.addListenerForSingleValueEvent(new ValueEventListener()
                 {
@@ -233,56 +242,75 @@ public class ResultsOtherFragment extends Fragment
                             User user = child.getValue(User.class);
                             if(user != null && user.getEmail().equals(firebaseUser.getEmail()))
                             {
-                                if(btnAddFriend.getText().equals("Remove"))
+                                if(user.getAthleteId() != friendAthleteId)
                                 {
-                                    friendsReference.addListenerForSingleValueEvent(new ValueEventListener()
+                                    if(btnAddFriend.getText().equals("Remove"))
                                     {
-                                        @Override
-                                        public void onDataChange(DataSnapshot dataSnapshot)
+                                        friendsReference.addListenerForSingleValueEvent(new ValueEventListener()
                                         {
-                                            Iterable<DataSnapshot> children = dataSnapshot.getChildren();
-
-                                            for (DataSnapshot child : children)
+                                            @Override
+                                            public void onDataChange(DataSnapshot dataSnapshot)
                                             {
-                                                Friend friend = child.getValue(Friend.class);
+                                                Iterable<DataSnapshot> children = dataSnapshot.getChildren();
+                                                boolean found = false;
 
-                                                if(friendAthleteId == friend.getAthleteId())
+                                                for (DataSnapshot child : children)
+                                                {
+                                                    Friend friend = child.getValue(Friend.class);
+
+                                                    if(friendAthleteId == friend.getAthleteId())
+                                                    {
+                                                        btnAddFriend.setText(R.string.add);
+
+                                                        friendsReference.child(child.getKey()).removeValue();
+
+                                                        utilAlertDialog.getAlertDialog("Friend removed", friendAthleteName+" has been removed from your friend list", getActivity());
+
+                                                        found = true;
+                                                        break;
+                                                    }
+                                                }
+
+                                                if(!found)
                                                 {
                                                     btnAddFriend.setText(R.string.add);
 
-                                                    friendsReference.child(child.getKey()).removeValue();
-
-                                                    utilAlertDialog.getAlertDialog("Friend removed", friendAthleteName+" has been removed from your friend list", getActivity());
+                                                    utilAlertDialog.getAlertDialog("Friend already removed", friendAthleteName+" has already been removed from your friend list", getActivity());
                                                 }
                                             }
-                                        }
 
-                                        @Override
-                                        public void onCancelled(DatabaseError databaseError)
-                                        {
+                                            @Override
+                                            public void onCancelled(DatabaseError databaseError)
+                                            {
 
-                                        }
-                                    });
-                                }
-                                else if(btnAddFriend.getText().equals("Add"))
-                                {
-                                    Friend friend = new Friend(friendAthleteName, friendAthleteId);
-                                    ArrayList<Friend> friends = new ArrayList<>();
-
-                                    if (user.getFriends() != null)
-                                    {
-                                        friends = (ArrayList<Friend>) user.getFriends();
+                                            }
+                                        });
                                     }
-                                    //if not null, friend list exists (get old list and add to it)
-                                    //if null, friend list does not exist
+                                    else if(btnAddFriend.getText().equals("Add"))
+                                    {
+                                        Friend friend = new Friend(friendAthleteName, friendAthleteId);
+                                        ArrayList<Friend> friends = new ArrayList<>();
 
-                                    friends.add(friend);
-                                    friendsReference.setValue(friends);
+                                        if (user.getFriends() != null)
+                                        {
+                                            friends = (ArrayList<Friend>) user.getFriends();
+                                        }
+                                        //if not null, friend list exists (get old list and add to it)
+                                        //if null, friend list does not exist
 
-                                    btnAddFriend.setText(R.string.remove);
+                                        friends.add(friend);
+                                        friendsReference.setValue(friends);
 
-                                    utilAlertDialog.getAlertDialog("Friend added", friendAthleteName+" has been added to your friend list", getActivity());
+                                        btnAddFriend.setText(R.string.remove);
+
+                                        utilAlertDialog.getAlertDialog("Friend added", friendAthleteName+" has been added to your friend list", getActivity());
+                                    }
                                 }
+                                else
+                                {
+                                    utilAlertDialog.getAlertDialog("This is you!", "You cannot add yourself!", getActivity());
+                                }
+                                break;
                             }
                         }
                     }
@@ -292,6 +320,20 @@ public class ResultsOtherFragment extends Fragment
 
                     }
                 });
+            }
+        });
+
+        btnBackOther.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                nameDisplayRelative.setVisibility(View.INVISIBLE);
+                tvNoResults.setVisibility(View.INVISIBLE);
+                if(otherResultsFrame != null)
+                otherResultsFrame.removeView(tableLayout);
+
+                searchFormVisibility(true);
             }
         });
 

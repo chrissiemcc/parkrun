@@ -20,8 +20,15 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_alignParentStart="true"
-                android:text="Results for:\n\n"
                 android:textSize="14sp" />
+
+            <Button
+                android:id="@+id/btnBackOther"
+                android:layout_width="60dp"
+                android:layout_height="40dp"
+                android:layout_toStartOf="@+id/btnAddFriend"
+                android:text="Back"
+                android:textSize="12sp"/>
 
             <Button
                 android:id="@+id/btnAddFriend"
@@ -36,7 +43,18 @@
             android:id="@+id/otherResultsFrame"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/nameDisplayRelative"/>
+            android:layout_below="@+id/nameDisplayRelative">
+
+            <TextView
+                android:id="@+id/tvNoResultsOther"
+                android:layout_gravity="center"
+                android:fontFamily="@font/salsa"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="invisible"
+                android:text="No results were found!" />
+
+        </FrameLayout>
 
         <EditText
             android:id="@+id/txtSearchAthlete"
