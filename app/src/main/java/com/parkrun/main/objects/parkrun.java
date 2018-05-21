@@ -1,16 +1,23 @@
 package com.parkrun.main.objects;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class parkrun
 {
-    private String name, lastCheckInReadDate, directorId;
+    private String name, directorId;
+    private Date lastCheckInReadDate;
     private int attendance;
     private List<Announcement> announcements;
     private List<Photo> gallery;
 
-    public parkrun(String name, String lastCheckInReadDate, String directorId, int attendance)
+    public parkrun()
+    {
+        // Required empty public constructor
+    }
+
+    public parkrun(String name, Date lastCheckInReadDate, String directorId, int attendance)
     {
         this.name = name;
         this.directorId = directorId;
@@ -35,19 +42,19 @@ public class parkrun
         return this.directorId;
     }
 
-    public String getLastCheckInReadDate()
+    public Date getLastCheckInReadDate()
     {
-        return lastCheckInReadDate;
+        return this.lastCheckInReadDate;
     }
 
     public List<Announcement> getAnnouncements()
     {
-        return announcements;
+        return this.announcements;
     }
 
     public List<Photo> getGallery()
     {
-        return gallery;
+        return this.gallery;
     }
 
     public void setAnnouncements(List <Announcement> announcements)
@@ -58,5 +65,15 @@ public class parkrun
     public void setGallery(List <Photo> gallery)
     {
         this.gallery = gallery;
+    }
+
+    public void setAttendance(int attendance)
+    {
+        this.attendance = attendance;
+    }
+
+    public void setLastCheckInReadDate(Date lastCheckInReadDate)
+    {
+        this.lastCheckInReadDate = lastCheckInReadDate;
     }
 }

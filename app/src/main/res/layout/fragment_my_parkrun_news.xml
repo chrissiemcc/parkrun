@@ -1,13 +1,67 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.parkrun.main.fragments.myparkrun.MyParkrunNewsFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <RelativeLayout
+        android:id="@+id/newsRelative"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="News" />
+        android:layout_height="wrap_content"
+        android:layout_margin="6dp">
 
-</RelativeLayout>
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:id="@+id/progressBarNews"/>
+
+        <RelativeLayout
+            android:id="@+id/directorPanelRelative"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="invisible">
+
+            <TextView
+                android:id="@+id/tvCheckInDetails"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_toStartOf="@+id/btnAddNews"
+                android:fontFamily="@font/salsa"
+                android:gravity="center" />
+
+            <Button
+                android:id="@+id/btnAddNews"
+                android:layout_width="60dp"
+                android:layout_height="40dp"
+                android:layout_toStartOf="@+id/btnCheckInNews"
+                android:text="Add"
+                android:textSize="12sp"
+                android:visibility="invisible" />
+
+            <Button
+                android:id="@+id/btnCheckInNews"
+                android:layout_width="90dp"
+                android:layout_height="40dp"
+                android:layout_toStartOf="@+id/btnRefreshNews"
+                android:textSize="12sp" />
+
+            <Button
+                android:id="@+id/btnRefreshNews"
+                android:layout_width="80dp"
+                android:layout_height="40dp"
+                android:layout_alignParentEnd="true"
+                android:text="Refresh"
+                android:textSize="12sp" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/announcementListRelative"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/directorPanelRelative"
+            android:visibility="invisible">
+
+        </RelativeLayout>
+    </RelativeLayout>
+</ScrollView>

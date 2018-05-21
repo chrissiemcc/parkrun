@@ -287,7 +287,7 @@ public class LoginActivity extends AppCompatActivity
                             runningClubId = Integer.parseInt(formTable.selectFirst("select[name=club]").selectFirst("option[selected=selected]").attr("value")); //get running club id;
                             runningClubName = formTable.selectFirst("select[name=club]").selectFirst("option[selected=selected]").text(); //get running club name
                             email = formTable.selectFirst("input[name=email]").attr("value"); //get Email
-                            parkrunName = formTable.selectFirst("select[name=homerun]").selectFirst("option[selected=selected]").text(); //get home parkrun name
+                            parkrunName = formTable.selectFirst("select[name=homerun]").selectFirst("option[selected=selected]").text().toLowerCase().replace(" ", ""); //get home parkrun name
                             postcode = formTable.selectFirst("input[name=postcode]").attr("value"); //get postcode
                             ICEName = formTable.selectFirst("input[name=ICEName]").attr("value"); //get ICE Name
                             ICEContact = formTable.selectFirst("input[name=ICEContact]").attr("value"); //get ICE Contact number
@@ -359,7 +359,7 @@ public class LoginActivity extends AppCompatActivity
                 if (task.isSuccessful())
                 {
                     User user = new User(athleteId, firstName, lastName, email, gender, DOBDay, DOBMonth, DOBYear, runningClubId,
-                            runningClubName, parkrunName, postcode, ICEName, ICEContact, medicalInfo);
+                            runningClubName, parkrunName, postcode, ICEName, ICEContact, medicalInfo, false);
 
                     databaseUser = authentication.getCurrentUser();
 

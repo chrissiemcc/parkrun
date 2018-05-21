@@ -1,12 +1,11 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.parkrun.main.fragments.HomeFragment">
 
     <ImageView
-        android:id="@+id/imageView"
+        android:id="@+id/imageParkrunHome"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
@@ -21,8 +20,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
-        android:layout_below="@+id/imageView"
+        android:layout_below="@+id/imageParkrunHome"
         android:layout_marginTop="10dp"
+        android:fontFamily="@font/salsa"
         android:textAlignment="center"
         android:textSize="30sp" />
 
@@ -33,7 +33,26 @@
         android:layout_alignParentStart="true"
         android:layout_below="@+id/tvHome"
         android:layout_marginTop="10dp"
+        android:fontFamily="@font/salsa"
         android:textAlignment="center"
         android:textSize="20sp" />
+
+    <ImageView
+        android:id="@+id/imageWeather"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/tvWeather"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="60dp"
+        android:src="@drawable/cloudy"/>
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/yahoo_logo"
+        android:layout_below="@+id/tvWeather"
+        android:layout_centerHorizontal="true"
+        android:src="@drawable/yahoo_logo"/>
 
 </RelativeLayout>

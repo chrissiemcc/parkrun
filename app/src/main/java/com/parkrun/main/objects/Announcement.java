@@ -4,6 +4,11 @@ public class Announcement
 {
     private String date, text;
 
+    public Announcement()
+    {
+        // Required empty public constructor
+    }
+
     public Announcement(String date, String text)
     {
         this.date = date;

@@ -8,14 +8,24 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.parkrun.main.R;
+import com.parkrun.main.objects.Channel;
+import com.parkrun.main.service.WeatherServiceCallback;
+import com.parkrun.main.service.YahooWeatherService;
 
-public class HomeFragment extends Fragment
+public class HomeFragment extends Fragment implements WeatherServiceCallback
 {
+    private ImageView imageWeather;
+    private TextView tvWeather;
+
+    private YahooWeatherService service;
+
     public HomeFragment()
     {
         // Required empty public constructor
@@ -36,6 +46,12 @@ public class HomeFragment extends Fragment
         weatherThread();
 
         TextView tvHome = view.findViewById(R.id.tvHome);
+        tvWeather = view.findViewById(R.id.tvWeather);
+
+        imageWeather = view.findViewById(R.id.imageWeather);
+
+        service = new YahooWeatherService(this);
+        service.refreshWeather("Carrickfergus, United Kingdom");
 
         FirebaseAuth authentication = FirebaseAuth.getInstance();
         FirebaseUser firebaseUser = authentication.getCurrentUser();
@@ -74,5 +90,17 @@ public class HomeFragment extends Fragment
 
         Thread weatherThread = new Thread(weatherRunnable);
         weatherThread.start();
+    }
+
+    @Override
+    public void serviceSuccess(Channel channel)
+    {
+
+    }
+
+    @Override
+    public void serviceFailure(Exception exception)
+    {
+        Toast.makeText(getActivity(), exception.getMessage(), Toast.LENGTH_LONG).show();
     }
 }

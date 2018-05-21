@@ -16,7 +16,7 @@ public class User
     }
 
     public User(int athleteId, String firstName, String lastName, String email, String gender, int DOBDay, String DOBMonth,
-                int DOBYear, int runningClubId, String runningClubName, String parkrunName, String postcode, String ICEName, String ICEContact, String medicalInfo)
+                int DOBYear, int runningClubId, String runningClubName, String parkrunName, String postcode, String ICEName, String ICEContact, String medicalInfo, boolean director)
     {
         this.athleteId = athleteId;
         this.firstName = firstName;
@@ -34,7 +34,7 @@ public class User
         this.ICEContact = ICEContact;
         this.medicalInfo = medicalInfo;
         this.friends = new ArrayList<>();
-        this.director = false;
+        this.director = director;
     }
 
     public int getAthleteId()
