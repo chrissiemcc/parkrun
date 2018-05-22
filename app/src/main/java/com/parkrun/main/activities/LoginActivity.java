@@ -3,6 +3,7 @@ package com.parkrun.main.activities;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
@@ -11,6 +12,7 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -33,6 +35,8 @@ import com.google.firebase.database.ValueEventListener;
 import com.parkrun.main.R;
 import com.parkrun.main.objects.User;
 import com.parkrun.main.util.UtilAlertDialog;
+import com.tooltip.OnDismissListener;
+import com.tooltip.Tooltip;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -51,10 +55,10 @@ import javax.net.ssl.HttpsURLConnection;
 
 public class LoginActivity extends AppCompatActivity
 {
-    int athleteId;
-    String passString;
+    private int athleteId;
+    private String passString;
 
-    private Button btnLogin, btnRegister;
+    private Button btnLogin, btnTooltip;
     private EditText txtAthleteIdLogin, txtPasswordLogin;
     private FirebaseAuth authentication;
     private FirebaseUser databaseUser;
@@ -64,6 +68,7 @@ public class LoginActivity extends AppCompatActivity
     private DatabaseReference databaseReference;
 
     private boolean isError = false; //class scope boolean for the handler of login thread to check if there was a login error
+    private boolean tooltipShowing = false; //class scope boolean to see if tooltip is showing
 
     @SuppressLint("HandlerLeak")
     Handler handler = new Handler()
@@ -91,7 +96,7 @@ public class LoginActivity extends AppCompatActivity
         setContentView(R.layout.activity_login);
 
         btnLogin = findViewById(R.id.btnLogin);
-        btnRegister = findViewById(R.id.btnRegister);
+        btnTooltip = findViewById(R.id.btnTooltip);
 
         txtAthleteIdLogin = findViewById(R.id.txtAthleteIdLogin);
         txtPasswordLogin = findViewById(R.id.txtPasswordLogin);
@@ -121,18 +126,6 @@ public class LoginActivity extends AppCompatActivity
                 passString = txtPasswordLogin.getText().toString();
 
                 loginThread();
-            }
-        });
-
-        btnRegister.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View view)
-            {
-                // TODO
-                //Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
-                //startActivity(intent);
-                // TODO
             }
         });
 
@@ -191,6 +184,15 @@ public class LoginActivity extends AppCompatActivity
 
             }
         });
+
+        btnTooltip.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                showToolTip(view, Gravity.BOTTOM);
+            }
+        });
     }
 
     private void loginFormVisibility(boolean visible)
@@ -200,7 +202,6 @@ public class LoginActivity extends AppCompatActivity
             txtAthleteIdLogin.setVisibility(View.INVISIBLE);
             txtPasswordLogin.setVisibility(View.INVISIBLE);
             btnLogin.setVisibility(View.INVISIBLE);
-            btnRegister.setVisibility(View.INVISIBLE);
             lblAthleteId.setVisibility(View.INVISIBLE);
             lblPassword.setVisibility(View.INVISIBLE);
 
@@ -211,7 +212,6 @@ public class LoginActivity extends AppCompatActivity
             txtAthleteIdLogin.setVisibility(View.VISIBLE);
             txtPasswordLogin.setVisibility(View.VISIBLE);
             btnLogin.setVisibility(View.VISIBLE);
-            btnRegister.setVisibility(View.VISIBLE);
             lblAthleteId.setVisibility(View.VISIBLE);
             lblPassword.setVisibility(View.VISIBLE);
 
@@ -474,5 +474,33 @@ public class LoginActivity extends AppCompatActivity
     {
         InputMethodManager inputManager = (InputMethodManager)this.getSystemService(Context.INPUT_METHOD_SERVICE);
         inputManager.hideSoftInputFromWindow(this.getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+    }
+
+    private void showToolTip(View v, int gravity)
+    {
+        Button button = (Button) v;
+        Tooltip.Builder tooltip;
+
+        if(!tooltipShowing)
+        {
+            tooltip = new Tooltip.Builder(button)
+                    .setText("Firebase is used to store personal details of parkrun accounts")
+                    .setTextColor(Color.WHITE)
+                    .setGravity(gravity)
+                    .setCornerRadius(8f)
+                    .setDismissOnClick(true)
+                    .setOnDismissListener(new OnDismissListener()
+                    {
+                        @Override
+                        public void onDismiss()
+                        {
+                           tooltipShowing = false;
+                       }
+                   });
+
+            tooltip.show();
+
+            tooltipShowing = true;
+        }
     }
 }

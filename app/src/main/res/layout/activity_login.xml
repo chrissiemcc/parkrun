@@ -57,17 +57,6 @@
         android:text="@string/login_button"
         android:textColor="@android:color/white"/>
 
-    <Button
-        android:background="@color/colorPrimary"
-        android:id="@+id/btnRegister"
-        android:layout_alignStart="@+id/btnLogin"
-        android:layout_below="@+id/btnLogin"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="15dp"
-        android:layout_width="160dp"
-        android:text="@string/register_button"
-        android:textColor="@android:color/white"/>
-
     <ImageView
         android:contentDescription="@string/parkrun_title"
         android:id="@+id/parkrun_title_login"
@@ -85,5 +74,15 @@
         android:layout_centerHorizontal="true"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"/>
+
+    <Button
+        android:id="@+id/btnTooltip"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/btnLogin"
+        android:background="@color/colorPrimary"
+        android:layout_marginTop="12dp"
+        android:text="!" />
 
 </RelativeLayout>

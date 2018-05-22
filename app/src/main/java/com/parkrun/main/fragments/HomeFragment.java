@@ -1,5 +1,6 @@
 package com.parkrun.main.fragments;
 
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
@@ -16,6 +17,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.parkrun.main.R;
 import com.parkrun.main.objects.Channel;
+import com.parkrun.main.objects.Forecast;
+import com.parkrun.main.objects.Item;
 import com.parkrun.main.service.WeatherServiceCallback;
 import com.parkrun.main.service.YahooWeatherService;
 
@@ -43,15 +46,13 @@ public class HomeFragment extends Fragment implements WeatherServiceCallback
     {
         super.onViewCreated(view, savedInstanceState);
 
-        weatherThread();
-
         TextView tvHome = view.findViewById(R.id.tvHome);
         tvWeather = view.findViewById(R.id.tvWeather);
 
         imageWeather = view.findViewById(R.id.imageWeather);
 
         service = new YahooWeatherService(this);
-        service.refreshWeather("Carrickfergus, United Kingdom");
+        service.refreshWeather("Carrickfergus, Northern Ireland");
 
         FirebaseAuth authentication = FirebaseAuth.getInstance();
         FirebaseUser firebaseUser = authentication.getCurrentUser();
@@ -77,26 +78,34 @@ public class HomeFragment extends Fragment implements WeatherServiceCallback
     }
     //To make sure the item checked in the navigation menu is always correct, even on back press
 
-    private void weatherThread()
-    {
-        Runnable weatherRunnable = new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                //weather code
-            }
-        };
-
-        Thread weatherThread = new Thread(weatherRunnable);
-        weatherThread.start();
-    }
-
     @Override
     public void serviceSuccess(Channel channel)
     {
+        int index = 1;
+        Item item = channel.getItem();
+        Forecast[] forecast = item.getForecast();
+        Forecast saturday = null;
 
-    }
+        for(Forecast day : forecast)
+        {
+            if(day.getDay().equals("Sat") && index != 1)
+            {
+                saturday = day;
+                break;
+            }
+            if(index == 1)
+                index++;//avoid giving forecast for today if today = saturday
+        }//get forecast for Saturday
+
+        int resourceId = getResources().getIdentifier("icon_" + saturday.getCode(), "drawable", getActivity().getPackageName());
+
+        Drawable weatherIconDrawable = getResources().getDrawable(resourceId);
+
+        imageWeather.setImageDrawable(weatherIconDrawable);
+
+        String weatherText = "Local parkruns on Saturday are expected to be: " + saturday.getDescription();
+        tvWeather.setText(weatherText);
+    }// yahoo weather service success
 
     @Override
     public void serviceFailure(Exception exception)

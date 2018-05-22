@@ -1,13 +1,28 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.parkrun.main.fragments.myparkrun.MyParkrunResultsFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <FrameLayout
+        android:id="@+id/parkrunResultsFrame"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="Results" />
+        android:layout_height="wrap_content">
 
-</RelativeLayout>
+        <ProgressBar
+            android:id="@+id/progressBarParkrunResults"
+            android:layout_gravity="center"
+            android:layout_marginTop="6dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/tvNoResultsParkrun"
+            android:layout_gravity="center"
+            android:fontFamily="@font/salsa"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="invisible"
+            android:text="No results were found!" />
+    </FrameLayout>
+</ScrollView>
