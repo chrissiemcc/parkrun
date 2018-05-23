@@ -168,11 +168,10 @@ public class MyParkrunResultsFragment extends MyParkrunMainFragment
 
                             if(doHeader)
                             {
-                                String[] headings = {"Pos","Name","Time","Age%","Club","PB?","Total Runs"};
+                                String[] headings = {"Pos","Name","Time","Age %","Club","PB?","Total"};
                                 for(int i=0; i<results.length;i++)
                                 {
-                                    if(i != 3 && i != 5 && i != 6 && i != 10)
-                                        results[i].setText(headings[i]);
+                                    results[i].setText(headings[i]);
                                 }
                             }
                             else
@@ -183,7 +182,12 @@ public class MyParkrunResultsFragment extends MyParkrunMainFragment
                                 {
                                     if(i != 3 && i != 5 && i != 6 && i != 10)
                                     {
-                                        results[arrayIndex].setText(cell.text());
+                                        String cellText = cell.text();
+                                        if(i == 7 || i == 1 || i == 8)
+                                        {
+                                            cellText = cellText.replace(" ", "\n");
+                                        }//Club name on more than one line
+                                        results[arrayIndex].setText(cellText);
                                         arrayIndex++;
                                     }
                                     i++;
@@ -196,6 +200,7 @@ public class MyParkrunResultsFragment extends MyParkrunMainFragment
                                 result.setPadding(8, 0, 8, 0);
                                 result.setLayoutParams(layoutParams); //set margins between rows
                                 if(doHeader) result.setBackgroundColor(Color.CYAN); //set heading background colour
+                                else result.setBackgroundColor(Color.WHITE);
                                 result.setTextSize(5, 2f);
                                 tableRow.addView(result);
                             }
@@ -204,6 +209,8 @@ public class MyParkrunResultsFragment extends MyParkrunMainFragment
 
                             tableLayout.addView(tableRow);
                             //Add row to table after it has finished populating
+
+                            tableLayout.setBackgroundColor(Color.BLACK);
 
                             tableLayout.setStretchAllColumns(true);
                             //Makes table fills the screen

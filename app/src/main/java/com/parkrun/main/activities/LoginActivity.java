@@ -67,6 +67,8 @@ public class LoginActivity extends AppCompatActivity
     private final UtilAlertDialog utilAlertDialog = new UtilAlertDialog(this);
     private DatabaseReference databaseReference;
 
+    private User user;
+
     private boolean isError = false; //class scope boolean for the handler of login thread to check if there was a login error
     private boolean tooltipShowing = false; //class scope boolean to see if tooltip is showing
 
@@ -204,6 +206,7 @@ public class LoginActivity extends AppCompatActivity
             btnLogin.setVisibility(View.INVISIBLE);
             lblAthleteId.setVisibility(View.INVISIBLE);
             lblPassword.setVisibility(View.INVISIBLE);
+            btnTooltip.setVisibility(View.INVISIBLE);
 
             progressBarLogin.setVisibility(View.VISIBLE);
         }
@@ -214,6 +217,7 @@ public class LoginActivity extends AppCompatActivity
             btnLogin.setVisibility(View.VISIBLE);
             lblAthleteId.setVisibility(View.VISIBLE);
             lblPassword.setVisibility(View.VISIBLE);
+            btnTooltip.setVisibility(View.VISIBLE);
 
             progressBarLogin.setVisibility(View.INVISIBLE);
         }
@@ -335,8 +339,8 @@ public class LoginActivity extends AppCompatActivity
     }
 
     private boolean createUser(final int athleteId, final String email, String password, final String firstName, final String lastName, final String gender,
-                               final int DOBDay, final String DOBMonth, final int DOBYear, final int runningClubId, final String runningClubName, final String parkrunName, final String postcode,
-                               final String ICEName, final String ICEContact, final String medicalInfo)
+                               final int dobday, final String dobmonth, final int dobyear, final int runningClubId, final String runningClubName, final String parkrunName, final String postcode,
+                               final String icename, final String icecontact, final String medicalInfo)
     {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         final DatabaseReference databaseReference = database.getReference("users");
@@ -351,6 +355,9 @@ public class LoginActivity extends AppCompatActivity
             databaseUser.delete(); //stop the database authentication filling up with anonymous users
         }
 
+        user = new User(athleteId, firstName, lastName, email, gender, dobday, dobmonth, dobyear, runningClubId,
+                runningClubName, parkrunName, postcode, icename, icecontact, medicalInfo, false, false);
+
         authentication.createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>()
         {
             @Override
@@ -358,9 +365,6 @@ public class LoginActivity extends AppCompatActivity
             {
                 if (task.isSuccessful())
                 {
-                    User user = new User(athleteId, firstName, lastName, email, gender, DOBDay, DOBMonth, DOBYear, runningClubId,
-                            runningClubName, parkrunName, postcode, ICEName, ICEContact, medicalInfo, false);
-
                     databaseUser = authentication.getCurrentUser();
 
                     if (databaseUser != null)
@@ -415,22 +419,25 @@ public class LoginActivity extends AppCompatActivity
 
                 for (DataSnapshot child : children)
                 {
-                    User user = child.getValue(User.class);
+                    User userChild = child.getValue(User.class);
 
-                    if (user != null && user.getAthleteId() == athleteId)
+                    if (userChild != null && userChild.getAthleteId() == athleteId)
                     {
                         if (databaseUser.isAnonymous())
                         {
                             databaseUser.delete(); //stop the database authentication filling up with anonymous users
                         }
 
-                        authentication.signInWithEmailAndPassword(user.getEmail(), passString).addOnCompleteListener(new OnCompleteListener<AuthResult>()
+                        authentication.signInWithEmailAndPassword(userChild.getEmail(), passString).addOnCompleteListener(new OnCompleteListener<AuthResult>()
                         {
                             @Override
                             public void onComplete(@NonNull Task<AuthResult> task)
                             {
                                 if (task.isSuccessful())
                                 {
+                                    databaseUser = authentication.getCurrentUser();
+                                    Log.d("Testing", databaseUser.getUid());
+                                    databaseReference.child(databaseUser.getUid()).setValue(user);
                                     Log.d("Testing", "Login was successful");
                                 }
                             }

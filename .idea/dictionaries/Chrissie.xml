@@ -5,10 +5,17 @@
       <w>athleteeventresultshistory</w>
       <w>athletehistory</w>
       <w>athleteid</w>
+      <w>bspacer</w>
       <w>carrickfergus</w>
+      <w>clubhistory</w>
+      <w>dobday</w>
+      <w>dobmonth</w>
+      <w>dobyear</w>
       <w>firebase</w>
       <w>firebaseio</w>
       <w>homerun</w>
+      <w>icecontact</w>
+      <w>icename</w>
       <w>jsoup</w>
       <w>latestresults</w>
       <w>latios</w>

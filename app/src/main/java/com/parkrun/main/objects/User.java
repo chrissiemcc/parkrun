@@ -5,9 +5,9 @@ import java.util.List;
 
 public class User
 {
-    private int athleteId, DOBDay, DOBYear, runningClubId;
-    private String firstName, lastName, gender, email, DOBMonth, runningClubName, parkrunName, postcode, ICEName, ICEContact, medicalInfo;
-    private boolean director;
+    private int athleteId, dobday, dobyear, runningClubId;
+    private String firstName, lastName, gender, email, dobmonth, runningClubName, parkrunName, postcode, icename, icecontact, medicalInfo;
+    private boolean director, checkedIn;
     private List<Friend> friends;
 
     public User()
@@ -15,26 +15,28 @@ public class User
         // Required empty public constructor
     }
 
-    public User(int athleteId, String firstName, String lastName, String email, String gender, int DOBDay, String DOBMonth,
-                int DOBYear, int runningClubId, String runningClubName, String parkrunName, String postcode, String ICEName, String ICEContact, String medicalInfo, boolean director)
+    public User(int athleteId, String firstName, String lastName, String email, String gender, int dobday, String dobmonth,
+                int dobyear, int runningClubId, String runningClubName, String parkrunName, String postcode, String icename, String icecontact,
+                String medicalInfo, boolean director, boolean checkedIn)
     {
         this.athleteId = athleteId;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.gender = gender;
-        this.DOBDay = DOBDay;
-        this.DOBMonth = DOBMonth;
-        this.DOBYear = DOBYear;
+        this.dobday = dobday;
+        this.dobmonth = dobmonth;
+        this.dobyear = dobyear;
         this.runningClubId = runningClubId;
         this.runningClubName = runningClubName;
         this.parkrunName = parkrunName;
         this.postcode = postcode;
-        this.ICEName = ICEName;
-        this.ICEContact = ICEContact;
+        this.icename = icename;
+        this.icecontact = icecontact;
         this.medicalInfo = medicalInfo;
         this.friends = new ArrayList<>();
         this.director = director;
+        this.checkedIn = checkedIn;
     }
 
     public int getAthleteId()
@@ -67,19 +69,19 @@ public class User
         return this.gender;
     }
 
-    public int getDOBDay()
+    public int getDobday()
     {
-        return this.DOBDay;
+        return this.dobday;
     }
 
-    public String getDOBMonth()
+    public String getDobmonth()
     {
-        return this.DOBMonth;
+        return this.dobmonth;
     }
 
-    public int getDOBYear()
+    public int getDobyear()
     {
-        return this.DOBYear;
+        return this.dobyear;
     }
 
     public String getRunningClubName()
@@ -102,14 +104,14 @@ public class User
         return this.postcode;
     }
 
-    public String getICEContact()
+    public String getIcecontact()
     {
-        return this.ICEContact;
+        return this.icecontact;
     }
 
-    public String getICEName()
+    public String getIcename()
     {
-        return this.ICEName;
+        return this.icename;
     }
 
     public String getMedicalInfo()
@@ -119,11 +121,21 @@ public class User
 
     public List<Friend> getFriends()
     {
-        return friends;
+        return this.friends;
+    }
+
+    public boolean getCheckedIn()
+    {
+        return this.checkedIn;
     }
 
     public void setFriends(List<Friend> friends)
     {
         this.friends = friends;
+    }
+
+    public void setCheckedIn(boolean checkedIn)
+    {
+        this.checkedIn = checkedIn;
     }
 }

@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -20,25 +21,29 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.parkrun.main.R;
+import com.parkrun.main.objects.Parkrun;
 import com.parkrun.main.objects.User;
-import com.parkrun.main.objects.parkrun;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 
 public class MyParkrunNewsFragment extends MyParkrunMainFragment
 {
-    private boolean setupComplete = false, userSearchComplete = false, checkInCheckComplete = false;
+    private boolean parkrunSetupComplete = false, userSearchComplete = false, checkIn = false, checkInSetupComplete = false;
+
+    private RelativeLayout announcementList;
 
     private View layout;
-    private Button addButton;
+    private Button addButton, checkInButton, refreshButton;
+    private TextView tvCheckInDetails;
 
     private FirebaseUser firebaseUser;
     private DatabaseReference userReference, parkrunReference;
 
     private User currentUser;
-    private parkrun currentParkrun;
+    private Parkrun currentParkrun;
+
+    private Calendar currentTime;
 
     @SuppressLint("HandlerLeak")
     Handler handler = new Handler()
@@ -46,14 +51,12 @@ public class MyParkrunNewsFragment extends MyParkrunMainFragment
         @Override
         public void handleMessage(Message msg)
         {
-            ProgressBar progressBar = layout.findViewById(R.id.progressBarNews);
-            progressBar.setVisibility(View.INVISIBLE);
+            if(currentUser.getCheckedIn()) checkInButton.setText(R.string.checkOut);
+            else checkInButton.setText(R.string.checkIn);
 
-            RelativeLayout directorPanelRelative = layout.findViewById(R.id.directorPanelRelative);
-            directorPanelRelative.setVisibility(View.VISIBLE);
+            setCheckInDetails();
 
-            RelativeLayout announcementListRelative = layout.findViewById(R.id.announcementListRelative);
-            announcementListRelative.setVisibility(View.VISIBLE);
+            formVisibility(true);
         }
     };
 
@@ -68,6 +71,16 @@ public class MyParkrunNewsFragment extends MyParkrunMainFragment
         // Inflate the layout for this fragment
         layout = inflater.inflate(R.layout.fragment_my_parkrun_news, container, false);
 
+        currentTime = Calendar.getInstance();
+
+        addButton = layout.findViewById(R.id.btnAddNews);
+        checkInButton = layout.findViewById(R.id.btnCheckInNews);
+        refreshButton = layout.findViewById(R.id.btnRefreshNews);
+
+        announcementList = layout.findViewById(R.id.announcementListRelative);
+
+        tvCheckInDetails = layout.findViewById(R.id.tvCheckInDetails);
+
         FirebaseAuth authentication = FirebaseAuth.getInstance();
         firebaseUser = authentication.getCurrentUser();
 
@@ -77,10 +90,49 @@ public class MyParkrunNewsFragment extends MyParkrunMainFragment
 
         detailSetup();
 
-        //Log.d("Testing", currentParkrun.getDirectorId());
+        checkInButton.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                boolean checkInCheck = checkInCheck();
+                if(checkInCheck)
+                    checkInReset();
+                else
+                {
+                    if(currentUser.getCheckedIn())
+                    {
+                        currentParkrun.setAttendance(currentParkrun.getAttendance()-1);
+                        checkInButton.setText(R.string.checkIn);
+                        currentUser.setCheckedIn(false);
+                        userReference.child(firebaseUser.getUid()).setValue(currentUser);
+                    }
+                    else
+                    {
+                        currentParkrun.setAttendance(currentParkrun.getAttendance()+1);
+                        checkInButton.setText(R.string.checkOut);
+                        currentUser.setCheckedIn(true);
+                        userReference.child(firebaseUser.getUid()).setValue(currentUser);
+                    }
+                    setCheckInDetails();
+                    parkrunReference.child(currentParkrun.getName()).setValue(currentParkrun);
+                }
+            }
+        });
 
-        //currentParkrun.setLastCheckInReadDate(Calendar.getInstance().getTime());
-        //parkrunReference.child(currentParkrun.getName()).setValue(currentParkrun);
+        refreshButton.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                announcementList.removeAllViews();
+                tvCheckInDetails.setText("");
+
+                formVisibility(false);
+
+                detailSetup();
+            }
+        });
 
         return layout;
     }
@@ -106,17 +158,13 @@ public class MyParkrunNewsFragment extends MyParkrunMainFragment
                             if(user != null && user.getEmail().equals(firebaseUser.getEmail()))
                             {
                                 currentUser = user;
-
-                                if(currentUser.getDirector())
-                                {
-                                    addButton = layout.findViewById(R.id.btnAddNews);
-                                    addButton.setVisibility(View.VISIBLE); //if user is director, give ability to add announcements
-                                }
                                 userSearchComplete = true;
 
                                 break;
                             }
                         }
+
+                        Log.d("Testing", "User setup complete");
                     }
 
                     @Override
@@ -141,18 +189,42 @@ public class MyParkrunNewsFragment extends MyParkrunMainFragment
                     {
                         Iterable<DataSnapshot> children = dataSnapshot.getChildren();
 
+                        boolean parkrunFound = false;
+                        String parkrunName = currentUser.getParkrunName();
+
                         for(DataSnapshot child : children)
                         {
-                            parkrun parkrun = child.getValue(parkrun.class);
+                            Parkrun parkrun = child.getValue(Parkrun.class);
 
-                            if(parkrun != null && currentUser.getParkrunName().equals(parkrun.getName()))
+                            if(parkrun != null && parkrunName.equals(parkrun.getName()))
                             {
                                 currentParkrun = parkrun;
                                 //PAGE DETAILS GO HERE
-                                setupComplete = true;
+                                checkIn = false;
+                                parkrunFound = true;
+
                                 break;
                             }
                         }
+
+                        if(!parkrunFound)
+                        {
+                            // The user's parkrun does not exist in the database.
+                            // Creating a node...
+                            Calendar calendar= Calendar.getInstance();
+                            Date lastCheckInDate = calendar.getTime();
+                            calendar.setTime(lastCheckInDate);
+
+                            Parkrun parkrun = new Parkrun(parkrunName, lastCheckInDate, 0);
+
+                            parkrunReference.child(parkrunName).setValue(parkrun);//add parkrun to database
+
+                            checkIn = true;
+                        }
+
+                        parkrunSetupComplete = true;
+
+                        Log.d("Testing", "Parkrun setup complete");
                     }
 
                     @Override
@@ -164,13 +236,36 @@ public class MyParkrunNewsFragment extends MyParkrunMainFragment
 
                 while(true)
                 {
-                    if(setupComplete) break;
+                    if(parkrunSetupComplete) break;
                     //wait for parkrun search to complete
                 }
 
-                setupComplete = false;
+                parkrunSetupComplete = false;
 
-                checkInCheck();
+                if(checkIn)
+                {
+                    if(checkInCheck())
+                        checkInReset();
+                    else
+                        checkInSetupComplete = true;
+                    // SET ATTENDANCE TO 0 and CHECK OUT ALL USERS FOR THIS PARKRUN
+                }
+                else
+                {
+                    checkInSetupComplete = true;
+                }
+
+                currentParkrun.setLastCheckInReadDate(currentTime.getTime());
+                parkrunReference.child(currentParkrun.getName()).setValue(currentParkrun);
+                //reset read time
+
+                while(true)
+                {
+                    if(checkInSetupComplete) break;
+                    //wait for check in setup to complete
+                }
+
+                checkInSetupComplete = false;
 
                 handler.sendEmptyMessage(0);
             }
@@ -180,117 +275,100 @@ public class MyParkrunNewsFragment extends MyParkrunMainFragment
         setupThread.start();
     }
 
-    private void checkInCheck()
+    private boolean checkInCheck()
     {
+        Calendar parkrunStart = currentTime;
 
-
-        /*
-        int index = 0;
-        boolean resetCheck = false;
-        Calendar parkrunStart = Calendar.getInstance();
-        while (parkrunStart.get(Calendar.DAY_OF_WEEK) != Calendar.SATURDAY)
+        if(parkrunStart.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY && parkrunStart.get(Calendar.HOUR_OF_DAY) <= 9)
         {
-            parkrunStart.add(Calendar.DAY_OF_WEEK, -1);
-            index++;
-        }
+            if(parkrunStart.get(Calendar.MINUTE) < 30 && parkrunStart.get(Calendar.HOUR_OF_DAY) == 9 ||
+                    parkrunStart.get(Calendar.HOUR_OF_DAY) < 9) parkrunStart.add(Calendar.DAY_OF_WEEK, -1);
+        }//If today is Saturday - check if Saturday BEFORE parkrun starts
 
-        String[] lastCheckInRead = currentParkrun.getLastCheckInReadDate().split(" ");
-        String[] lastCheckInReadTime = currentParkrun.getLastCheckInReadDate().split(":");
+        while (parkrunStart.get(Calendar.DAY_OF_WEEK) != Calendar.SATURDAY) parkrunStart.add(Calendar.DAY_OF_WEEK, -1);
+        parkrunStart.set(Calendar.HOUR_OF_DAY, 9);
+        parkrunStart.set(Calendar.MINUTE, 30);
+        parkrunStart.set(Calendar.SECOND, 0);
 
-        @SuppressLint("SimpleDateFormat") DateFormat df = new SimpleDateFormat("EEE HH:mm dd/MM/yyyy");
-        String checkIn = df.format(Calendar.getInstance().getTime());
-        String[] current = checkIn.split(" ");
-        String[] currentTime = current[1].split(":");
-        String[] currentDate = current[2].split("/");
+        Log.d("Testing", "Last parkrun started: "+parkrunStart.getTime());
 
-        if(index == 0)
+        return currentParkrun.getLastCheckInReadDate().before(parkrunStart.getTime());
+    }
+
+    private void checkInReset()
+    {
+        currentUser.setCheckedIn(false);
+        currentParkrun.setAttendance(0);
+
+        parkrunReference.child(currentParkrun.getName()).setValue(currentParkrun);
+
+        userReference.addListenerForSingleValueEvent(new ValueEventListener()
         {
-            if(Integer.parseInt(currentTime[0]) >= 9 && Integer.parseInt(lastCheckInReadTime[0]) <= 9)
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot)
             {
-                if(Integer.parseInt(currentTime[1]) >= 30 && Integer.parseInt(lastCheckInReadTime[1]) <= 30)
+                Iterable<DataSnapshot> children = dataSnapshot.getChildren();
+
+                for(DataSnapshot child : children)
                 {
-                    resetCheck = true;
+                    User user = child.getValue(User.class);
+
+                    if(user != null && user.getParkrunName().equals(currentParkrun.getName()))
+                    {
+                        user.setCheckedIn(false);
+                        userReference.child(child.getKey()).setValue(user);
+
+                        break;
+                    }
                 }
+
+                checkInSetupComplete = true;
+
+                Log.d("Testing", "All users checked-out");
             }
-        }//Today is Saturday
+
+            @Override
+            public void onCancelled(DatabaseError databaseError)
+            {
+
+            }
+        });
+    }
+
+    private void formVisibility(boolean visibility)
+    {
+        if(visibility)
+        {
+            if(currentUser.getDirector()) addButton.setVisibility(View.VISIBLE);
+
+            ProgressBar progressBar = layout.findViewById(R.id.progressBarNews);
+            progressBar.setVisibility(View.INVISIBLE);
+
+            RelativeLayout directorPanelRelative = layout.findViewById(R.id.directorPanelRelative);
+            directorPanelRelative.setVisibility(View.VISIBLE);
+
+            RelativeLayout announcementListRelative = layout.findViewById(R.id.announcementListRelative);
+            announcementListRelative.setVisibility(View.VISIBLE);
+        }
         else
         {
-            if(lastCheckInRead[0].equals("Sat"))
-            {
-                if(Integer.parseInt(lastCheckInReadTime[0]) <= 9)
-                {
-                    if(Integer.parseInt(lastCheckInReadTime[1]) <= 30)
-                    {
-                        resetCheck = true;
-                    }
-                }
-            }//Last check was Saturday
-            else
-            {
-                if(lastCheckInRead[0].equals(current[0]) && Integer.parseInt(currentTime[0]) >= Integer.parseInt(lastCheckInReadTime[0]))
-                {
-                    if(Integer.parseInt(currentTime[1]) >= Integer.parseInt(lastCheckInReadTime[1]))
-                    {
+            addButton.setVisibility(View.INVISIBLE);
 
-                    }
-                    else
-                    {
+            ProgressBar progressBar = layout.findViewById(R.id.progressBarNews);
+            progressBar.setVisibility(View.VISIBLE);
 
-                    }
-                }//Today and last check both same day
-                switch(current[0])
-                {
-                    case "Mon":
-                        if(!lastCheckInRead[0].equals("Sun"))
-                            resetCheck = true;
-                        break;
-                    case "Tue":
-                        if(!lastCheckInRead[0].equals("Sun") || !lastCheckInRead[0].equals("Mon"))
-                            resetCheck = true;
-                        break;
-                    case "Wed":
-                        if(!lastCheckInRead[0].equals("Sun") || !lastCheckInRead[0].equals("Mon")
-                                || !lastCheckInRead[0].equals("Tue"))
-                            resetCheck = true;
-                        break;
-                    case "Thu":
-                        if(!lastCheckInRead[0].equals("Sun") || !lastCheckInRead[0].equals("Mon")
-                                || !lastCheckInRead[0].equals("Tue") || !lastCheckInRead[0].equals("Wed"))
-                            resetCheck = true;
-                        break;
-                    case "Fri":
-                        if(!lastCheckInRead[0].equals("Sun") || !lastCheckInRead[0].equals("Mon")
-                                || !lastCheckInRead[0].equals("Tue") || !lastCheckInRead[0].equals("Wed")
-                                || !lastCheckInRead[0].equals("Thu"))
-                            resetCheck = true;
-                        break;
-                    case "Sun":
-                        if(!lastCheckInRead[0].equals("Sun"))
-                            resetCheck = true;
-                        break;
-                    default:
-                        break;
-                }
-            }//Last check was not Saturday
-        }//Today is not Saturday
+            RelativeLayout directorPanelRelative = layout.findViewById(R.id.directorPanelRelative);
+            directorPanelRelative.setVisibility(View.INVISIBLE);
 
-
-
-
-
-
-
-        if(resetCheck)
-        {
-            currentParkrun.setAttendance(0);
-            parkrunReference.child(currentParkrun.getName()).setValue(currentParkrun);
-        }// SET ATTENDANCE TO 0
-
-        while(true)
-        {
-            if(checkInCheckComplete) break;
-            //wait for check in search to complete
+            RelativeLayout announcementListRelative = layout.findViewById(R.id.announcementListRelative);
+            announcementListRelative.setVisibility(View.INVISIBLE);
         }
-        */
+    }
+
+    private void setCheckInDetails()
+    {
+        String checkInDetails = "So far, there are " + currentParkrun.getAttendance() +
+                " parkrunners attending your home parkrun next parkrun!";
+        tvCheckInDetails.setText(checkInDetails);
     }
 }

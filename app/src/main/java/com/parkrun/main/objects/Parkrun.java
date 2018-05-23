@@ -4,23 +4,22 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class parkrun
+public class Parkrun
 {
-    private String name, directorId;
+    private String name;
     private Date lastCheckInReadDate;
     private int attendance;
     private List<Announcement> announcements;
     private List<Photo> gallery;
 
-    public parkrun()
+    public Parkrun()
     {
         // Required empty public constructor
     }
 
-    public parkrun(String name, Date lastCheckInReadDate, String directorId, int attendance)
+    public Parkrun(String name, Date lastCheckInReadDate, int attendance)
     {
         this.name = name;
-        this.directorId = directorId;
         this.attendance = attendance;
         this.lastCheckInReadDate = lastCheckInReadDate;
         this.announcements = new ArrayList<>();
@@ -35,11 +34,6 @@ public class parkrun
     public String getName()
     {
         return this.name;
-    }
-
-    public String getDirectorId()
-    {
-        return this.directorId;
     }
 
     public Date getLastCheckInReadDate()
