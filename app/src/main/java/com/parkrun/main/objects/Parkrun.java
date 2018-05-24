@@ -2,7 +2,9 @@ package com.parkrun.main.objects;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Parkrun
 {
@@ -11,6 +13,7 @@ public class Parkrun
     private int attendance;
     private List<Announcement> announcements;
     private List<Photo> gallery;
+    private Map<String,String> volunteerRoster;
 
     public Parkrun()
     {
@@ -24,6 +27,7 @@ public class Parkrun
         this.lastCheckInReadDate = lastCheckInReadDate;
         this.announcements = new ArrayList<>();
         this.gallery = new ArrayList<>();
+        this.volunteerRoster = new HashMap<>();
     }
 
     public int getAttendance()
@@ -51,6 +55,11 @@ public class Parkrun
         return this.gallery;
     }
 
+    public Map<String,String> getVolunteerRoster()
+    {
+        return this.volunteerRoster;
+    }
+
     public void setAnnouncements(List <Announcement> announcements)
     {
         this.announcements = announcements;
@@ -69,5 +78,10 @@ public class Parkrun
     public void setLastCheckInReadDate(Date lastCheckInReadDate)
     {
         this.lastCheckInReadDate = lastCheckInReadDate;
+    }
+
+    public void setVolunteerRoster(Map<String,String> volunteerRoster)
+    {
+        this.volunteerRoster = volunteerRoster;
     }
 }

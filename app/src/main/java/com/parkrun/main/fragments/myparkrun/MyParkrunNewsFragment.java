@@ -9,8 +9,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
+import android.widget.TableLayout;
 import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -21,9 +23,12 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.parkrun.main.R;
+import com.parkrun.main.objects.Announcement;
 import com.parkrun.main.objects.Parkrun;
 import com.parkrun.main.objects.User;
+import com.parkrun.main.util.UtilAlertDialog;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -32,10 +37,12 @@ public class MyParkrunNewsFragment extends MyParkrunMainFragment
     private boolean parkrunSetupComplete = false, userSearchComplete = false, checkIn = false, checkInSetupComplete = false;
 
     private RelativeLayout announcementList;
+    private TableLayout announcementTable;
 
     private View layout;
     private Button addButton, checkInButton, refreshButton;
     private TextView tvCheckInDetails;
+    private EditText txtAnnouncement;
 
     private FirebaseUser firebaseUser;
     private DatabaseReference userReference, parkrunReference;
@@ -44,6 +51,8 @@ public class MyParkrunNewsFragment extends MyParkrunMainFragment
     private Parkrun currentParkrun;
 
     private Calendar currentTime;
+
+    private UtilAlertDialog utilAlertDialog;
 
     @SuppressLint("HandlerLeak")
     Handler handler = new Handler()
@@ -55,6 +64,7 @@ public class MyParkrunNewsFragment extends MyParkrunMainFragment
             else checkInButton.setText(R.string.checkIn);
 
             setCheckInDetails();
+            //announcementList.addView(announcementTable);
 
             formVisibility(true);
         }
@@ -73,9 +83,13 @@ public class MyParkrunNewsFragment extends MyParkrunMainFragment
 
         currentTime = Calendar.getInstance();
 
+        utilAlertDialog = new UtilAlertDialog();
+
         addButton = layout.findViewById(R.id.btnAddNews);
         checkInButton = layout.findViewById(R.id.btnCheckInNews);
         refreshButton = layout.findViewById(R.id.btnRefreshNews);
+
+        txtAnnouncement = layout.findViewById(R.id.txtAnnouncement);
 
         announcementList = layout.findViewById(R.id.announcementListRelative);
 
@@ -131,6 +145,40 @@ public class MyParkrunNewsFragment extends MyParkrunMainFragment
                 formVisibility(false);
 
                 detailSetup();
+            }
+        });
+
+        addButton.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                if(!txtAnnouncement.getText().toString().equals(""))
+                {
+                    Calendar calendar = Calendar.getInstance();
+
+                    Announcement announcement = new Announcement(calendar.getTime(), txtAnnouncement.getText().toString());
+                    //create new announcement with current time/date and inputted text
+
+                    ArrayList<Announcement> announcements;
+
+                    if(currentParkrun.getAnnouncements() != null)
+                    {
+                        announcements = (ArrayList<Announcement>) currentParkrun.getAnnouncements();
+                    }
+                    else
+                    {
+                        announcements = new ArrayList<>();
+                    }
+
+                    announcements.add(announcement);
+                    currentParkrun.setAnnouncements(announcements);
+                    parkrunReference.child(currentParkrun.getName()).setValue(currentParkrun);
+                }
+                else
+                {
+                    utilAlertDialog.getAlertDialog("No text", "The text field has no text", getActivity());
+                }
             }
         });
 
@@ -199,7 +247,10 @@ public class MyParkrunNewsFragment extends MyParkrunMainFragment
                             if(parkrun != null && parkrunName.equals(parkrun.getName()))
                             {
                                 currentParkrun = parkrun;
-                                //PAGE DETAILS GO HERE
+
+                                //ANNOUNCEMENTS
+                                if(currentParkrun.getAnnouncements() != null) announcementTable = setupAnnouncements();
+
                                 checkIn = false;
                                 parkrunFound = true;
 
@@ -339,7 +390,11 @@ public class MyParkrunNewsFragment extends MyParkrunMainFragment
     {
         if(visibility)
         {
-            if(currentUser.getDirector()) addButton.setVisibility(View.VISIBLE);
+            if(currentUser.getDirector())
+            {
+                addButton.setVisibility(View.VISIBLE);
+                txtAnnouncement.setVisibility(View.VISIBLE);
+            }
 
             ProgressBar progressBar = layout.findViewById(R.id.progressBarNews);
             progressBar.setVisibility(View.INVISIBLE);
@@ -353,6 +408,7 @@ public class MyParkrunNewsFragment extends MyParkrunMainFragment
         else
         {
             addButton.setVisibility(View.INVISIBLE);
+            txtAnnouncement.setVisibility(View.INVISIBLE);
 
             ProgressBar progressBar = layout.findViewById(R.id.progressBarNews);
             progressBar.setVisibility(View.VISIBLE);
@@ -370,5 +426,14 @@ public class MyParkrunNewsFragment extends MyParkrunMainFragment
         String checkInDetails = "So far, there are " + currentParkrun.getAttendance() +
                 " parkrunners attending your home parkrun next parkrun!";
         tvCheckInDetails.setText(checkInDetails);
+    }
+
+    private TableLayout setupAnnouncements()
+    {
+        TableLayout tableLayout = new TableLayout(getActivity().getApplicationContext());
+
+        formVisibility(false);
+
+        return tableLayout;
     }
 }
