@@ -7,7 +7,7 @@ public class User
 {
     private int athleteId, dobday, dobyear, runningClubId;
     private String firstName, lastName, gender, email, dobmonth, runningClubName, parkrunName, postcode, icename, icecontact, medicalInfo;
-    private boolean director, checkedIn;
+    private boolean director, checkedIn, weatherNotify, volunteering;
     private List<Friend> friends;
 
     public User()
@@ -17,7 +17,7 @@ public class User
 
     public User(int athleteId, String firstName, String lastName, String email, String gender, int dobday, String dobmonth,
                 int dobyear, int runningClubId, String runningClubName, String parkrunName, String postcode, String icename, String icecontact,
-                String medicalInfo, boolean director, boolean checkedIn)
+                String medicalInfo, boolean director, boolean checkedIn, boolean weatherNotify, boolean volunteering)
     {
         this.athleteId = athleteId;
         this.firstName = firstName;
@@ -37,6 +37,8 @@ public class User
         this.friends = new ArrayList<>();
         this.director = director;
         this.checkedIn = checkedIn;
+        this.weatherNotify = weatherNotify;
+        this.volunteering = volunteering;
     }
 
     public int getAthleteId()
@@ -129,6 +131,11 @@ public class User
         return this.checkedIn;
     }
 
+    public boolean getVolunteering()
+    {
+        return this.volunteering;
+    }
+
     public void setFriends(List<Friend> friends)
     {
         this.friends = friends;
@@ -137,5 +144,25 @@ public class User
     public void setCheckedIn(boolean checkedIn)
     {
         this.checkedIn = checkedIn;
+    }
+
+    public boolean getWeatherNotify()
+    {
+        return this.weatherNotify;
+    }
+
+    public void setWeatherNotify(boolean weatherNotify)
+    {
+        this.weatherNotify = weatherNotify;
+    }
+
+    public void setVolunteering(boolean volunteering)
+    {
+        this.volunteering = volunteering;
+    }
+
+    public void setDirector(boolean director)
+    {
+        this.director = director;
     }
 }

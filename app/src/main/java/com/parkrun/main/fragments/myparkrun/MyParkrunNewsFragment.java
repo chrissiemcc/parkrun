@@ -60,10 +60,8 @@ public class MyParkrunNewsFragment extends MyParkrunMainFragment
         @Override
         public void handleMessage(Message msg)
         {
-            if(currentUser.getCheckedIn()) checkInButton.setText(R.string.checkOut);
-            else checkInButton.setText(R.string.checkIn);
-
-            setCheckInDetails();
+            if(currentUser.getCheckedIn()) setCheckInDetails(false);
+            else setCheckInDetails(true);
             //announcementList.addView(announcementTable);
 
             formVisibility(true);
@@ -117,18 +115,17 @@ public class MyParkrunNewsFragment extends MyParkrunMainFragment
                     if(currentUser.getCheckedIn())
                     {
                         currentParkrun.setAttendance(currentParkrun.getAttendance()-1);
-                        checkInButton.setText(R.string.checkIn);
                         currentUser.setCheckedIn(false);
                         userReference.child(firebaseUser.getUid()).setValue(currentUser);
+                        setCheckInDetails(true);
                     }
                     else
                     {
                         currentParkrun.setAttendance(currentParkrun.getAttendance()+1);
-                        checkInButton.setText(R.string.checkOut);
                         currentUser.setCheckedIn(true);
                         userReference.child(firebaseUser.getUid()).setValue(currentUser);
+                        setCheckInDetails(false);
                     }
-                    setCheckInDetails();
                     parkrunReference.child(currentParkrun.getName()).setValue(currentParkrun);
                 }
             }
@@ -421,8 +418,11 @@ public class MyParkrunNewsFragment extends MyParkrunMainFragment
         }
     }
 
-    private void setCheckInDetails()
+    private void setCheckInDetails(boolean checkInBtnTxt)
     {
+        if(checkInBtnTxt) checkInButton.setText(R.string.checkIn);
+        else checkInButton.setText(R.string.checkOut);
+
         String checkInDetails = "So far, there are " + currentParkrun.getAttendance() +
                 " parkrunners attending your home parkrun next parkrun!";
         tvCheckInDetails.setText(checkInDetails);

@@ -356,7 +356,7 @@ public class LoginActivity extends AppCompatActivity
         }
 
         user = new User(athleteId, firstName, lastName, email, gender, dobday, dobmonth, dobyear, runningClubId,
-                runningClubName, parkrunName, postcode, icename, icecontact, medicalInfo, false, false);
+                runningClubName, parkrunName, postcode, icename, icecontact, medicalInfo, false, false, false, false);
 
         authentication.createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>()
         {
@@ -419,7 +419,7 @@ public class LoginActivity extends AppCompatActivity
 
                 for (DataSnapshot child : children)
                 {
-                    User userChild = child.getValue(User.class);
+                    final User userChild = child.getValue(User.class);
 
                     if (userChild != null && userChild.getAthleteId() == athleteId)
                     {
@@ -437,7 +437,14 @@ public class LoginActivity extends AppCompatActivity
                                 {
                                     databaseUser = authentication.getCurrentUser();
                                     Log.d("Testing", databaseUser.getUid());
+
+                                    user.setWeatherNotify(userChild.getWeatherNotify());
+                                    user.setCheckedIn(userChild.getCheckedIn());
+                                    user.setDirector(userChild.getDirector());
+                                    user.setVolunteering(userChild.getVolunteering());
                                     databaseReference.child(databaseUser.getUid()).setValue(user);
+                                    //make sure boolean nodes aren't overridden
+
                                     Log.d("Testing", "Login was successful");
                                 }
                             }

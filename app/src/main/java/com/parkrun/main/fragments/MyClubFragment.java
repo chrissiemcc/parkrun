@@ -155,7 +155,7 @@ public class MyClubFragment extends Fragment
                     TableRow.LayoutParams layoutParams = new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT);
                     layoutParams.setMargins(0,8,0,0);
 
-                    Document jsoupDocument = Jsoup.connect("http://www.parkrun.org.uk/carrickfergus/results/clubhistory/?clubNum=" + currentUser.getRunningClubId()).get();
+                    Document jsoupDocument = Jsoup.connect("http://www.parkrun.org.uk/"+ currentUser.getParkrunName() +"/results/clubhistory/?clubNum=" + currentUser.getRunningClubId()).get();
                     // Retrieve club results html page
 
                     Element resultsTable = jsoupDocument.selectFirst("#results");
