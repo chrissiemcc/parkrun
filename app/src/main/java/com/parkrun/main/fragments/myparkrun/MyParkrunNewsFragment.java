@@ -1,9 +1,13 @@
 package com.parkrun.main.fragments.myparkrun;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.content.DialogInterface;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,7 +17,9 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TableLayout;
+import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -30,7 +36,9 @@ import com.parkrun.main.util.UtilAlertDialog;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 public class MyParkrunNewsFragment extends MyParkrunMainFragment
 {
@@ -62,7 +70,9 @@ public class MyParkrunNewsFragment extends MyParkrunMainFragment
         {
             if(currentUser.getCheckedIn()) setCheckInDetails(false);
             else setCheckInDetails(true);
-            //announcementList.addView(announcementTable);
+
+            if(announcementTable!=null)
+                announcementList.addView(announcementTable);
 
             formVisibility(true);
         }
@@ -137,6 +147,7 @@ public class MyParkrunNewsFragment extends MyParkrunMainFragment
             public void onClick(View view)
             {
                 announcementList.removeAllViews();
+                if(announcementTable!=null) announcementTable.removeAllViews();
                 tvCheckInDetails.setText("");
 
                 formVisibility(false);
@@ -171,6 +182,8 @@ public class MyParkrunNewsFragment extends MyParkrunMainFragment
                     announcements.add(announcement);
                     currentParkrun.setAnnouncements(announcements);
                     parkrunReference.child(currentParkrun.getName()).setValue(currentParkrun);
+
+                    Toast.makeText(getActivity(), "Announcement uploaded! Refresh to view.", Toast.LENGTH_LONG).show();
                 }
                 else
                 {
@@ -248,7 +261,7 @@ public class MyParkrunNewsFragment extends MyParkrunMainFragment
                                 //ANNOUNCEMENTS
                                 if(currentParkrun.getAnnouncements() != null) announcementTable = setupAnnouncements();
 
-                                checkIn = false;
+                                checkIn = true;
                                 parkrunFound = true;
 
                                 break;
@@ -267,7 +280,7 @@ public class MyParkrunNewsFragment extends MyParkrunMainFragment
 
                             parkrunReference.child(parkrunName).setValue(parkrun);//add parkrun to database
 
-                            checkIn = true;
+                            checkIn = false;
                         }
 
                         parkrunSetupComplete = true;
@@ -303,6 +316,7 @@ public class MyParkrunNewsFragment extends MyParkrunMainFragment
                     checkInSetupComplete = true;
                 }
 
+                currentTime = Calendar.getInstance();
                 currentParkrun.setLastCheckInReadDate(currentTime.getTime());
                 parkrunReference.child(currentParkrun.getName()).setValue(currentParkrun);
                 //reset read time
@@ -339,6 +353,8 @@ public class MyParkrunNewsFragment extends MyParkrunMainFragment
         parkrunStart.set(Calendar.SECOND, 0);
 
         Log.d("Testing", "Last parkrun started: "+parkrunStart.getTime());
+
+        Log.d("Testing", "RESET DATE:"+currentParkrun.getLastCheckInReadDate().before(parkrunStart.getTime()));
 
         return currentParkrun.getLastCheckInReadDate().before(parkrunStart.getTime());
     }
@@ -434,6 +450,87 @@ public class MyParkrunNewsFragment extends MyParkrunMainFragment
 
         formVisibility(false);
 
+        List<Announcement> announcements = currentParkrun.getAnnouncements();
+
+        Collections.reverse(announcements);
+
+        int top = 0;
+
+        for(Announcement announcement : announcements)
+        {
+            TableRow tableRow = new TableRow(getActivity().getApplicationContext());
+            TextView textView = new TextView(getActivity().getApplicationContext());
+            String text = announcement.getText()+"\n\n"+announcement.getDate();
+            textView.setText(text);
+            tableRow.addView(textView);
+
+            if(top != 0)
+                tableRow.setPadding(0,50,0,0);
+
+            top++;
+
+            tableRow.setOnClickListener(new View.OnClickListener()
+            {
+
+                @Override
+                public void onClick(View view)
+                {
+                    getResponse(view);
+                }
+            });
+
+            tableLayout.addView(tableRow);
+        }
+
         return tableLayout;
     }
+
+    public void getResponse(final View view)
+    {
+        String title = "Delete Announcement";
+        String message = "Are you sure you want to delete this announcement?";
+        Activity currentActivity = getActivity();
+        AlertDialog dialog;
+        AlertDialog.Builder loginCorrection = new AlertDialog.Builder(currentActivity);
+
+        loginCorrection.setMessage(message).setCancelable(false).setPositiveButton("Ok", new DialogInterface.OnClickListener()
+        {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i)
+            {
+                TableRow tr = (TableRow) view;
+                TextView tv = (TextView) tr.getChildAt(0);
+                List<Announcement> ans = currentParkrun.getAnnouncements();
+
+                for(Announcement a : ans)
+                {
+                    if(tv.getText().toString().equals(a.getText()+"\n\n"+a.getDate()))
+                    {
+                        ans.remove(a);
+                        currentParkrun.setAnnouncements(ans);
+                        parkrunReference.child(currentParkrun.getName()).setValue(currentParkrun);
+                    }
+                }
+
+                announcementList.removeAllViews();
+                if(announcementTable!=null) announcementTable.removeAllViews();
+                tvCheckInDetails.setText("");
+
+                formVisibility(false);
+
+                detailSetup();
+
+                dialogInterface.cancel();
+            }
+        }).setNegativeButton("Cancel",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        dialog.dismiss();
+                    }
+                }
+        ).setTitle(title);
+
+        dialog = loginCorrection.create();
+        dialog.show();
+    }//to wait for response
 }

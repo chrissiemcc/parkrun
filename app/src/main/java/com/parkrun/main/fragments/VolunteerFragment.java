@@ -49,7 +49,8 @@ public class VolunteerFragment extends Fragment
     private boolean volunteerSearchComplete = false, userSearchComplete = false, isRoster = false;
 
     private Map<String,String> volunteerRoster;
-    private TextView[] results = new TextView[7];
+    private Map<String,String> parkrunRoster = null;
+    private TextView[] results = new TextView[2];
 
     private FirebaseUser firebaseUser;
     private DatabaseReference userReference, parkrunReference;
@@ -163,7 +164,7 @@ public class VolunteerFragment extends Fragment
                                 if(parkrun.getVolunteerRoster() != null)
                                 {
                                     isRoster = true;
-                                    volunteerRoster = parkrun.getVolunteerRoster();
+                                    parkrunRoster = parkrun.getVolunteerRoster();
                                 }
 
                                 break;
@@ -207,8 +208,6 @@ public class VolunteerFragment extends Fragment
 
                     TableRow tableRow;
 
-                    boolean doHeader = true;
-
                     TableRow.LayoutParams rowParams = new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT);
                     rowParams.setMargins(0,8,0,0);
 
@@ -220,42 +219,110 @@ public class VolunteerFragment extends Fragment
 
                     Elements rows = resultsTable.select("tr");
 
+                    int index = 1;
+
                     for (Element row : rows)
                     {
-                        tableRow = new TableRow(getActivity().getApplicationContext());
+                            tableRow = new TableRow(getActivity().getApplicationContext());
 
-                        for (int i=0;i<results.length;i++)
-                            results[i] = new TextView(getActivity().getApplicationContext());
+                            for (int i=0;i<results.length;i++)
+                                results[i] = new TextView(getActivity().getApplicationContext());
 
-                        Elements cells = row.select("td");
+                            Element role = row.selectFirst("a");
+                            Element volunteer = row.selectFirst("td");
 
-                        if(doHeader)
-                        {
-                            String[] headings = {"parkrun","Date","Event #","Pos","Time","Age %","PB?"};
-                            for(int i=0; i<results.length;i++)
-                                results[i].setText(headings[i]);
-                        }
-                        else
-                            for (Element cell : cells)
-                                results[cell.elementSiblingIndex()].setText(cell.text());
+                            if(role != null)
+                            {
+                                if(role!=null)
+                                {
+                                    Log.d("Testing", role.text());
+                                    results[0].setText(role.text());
+                                    results[0].setBackgroundColor(Color.CYAN);
+                                }
+                                else
+                                {
+                                    Log.d("Testing", " ");
+                                }
 
-                        for (TextView result : results)
-                        {
-                            result.setGravity(Gravity.CENTER);
-                            result.setPadding(8, 0, 8, 0);
-                            result.setLayoutParams(rowParams); //set margins between rows
-                            if(doHeader) result.setBackgroundColor(Color.CYAN); //set heading background colour
-                            result.setTextSize(5, 2f);
-                            tableRow.addView(result);
-                        }
+                                if(volunteer!=null)
+                                {
+                                    results[1].setText(volunteer.text());
+                                    results[1].setBackgroundColor(getResources().getColor(R.color.colorPrimary));
 
-                        if(doHeader) doHeader = false;
+                                    if(!volunteer.hasText())
+                                    {
+                                        Log.d("Testing", "ROLE - NO");
+                                        results[1].setOnClickListener(new View.OnClickListener()
+                                        {
+                                            @Override
+                                            public void onClick(View view)
+                                            {
+                                                for (Map.Entry<String, String> entry : volunteerRoster.entrySet())
+                                                {
+                                                    if (entry.getValue().equals("freeRole"))
+                                                    {
+                                                        TableRow tableRowRole = (TableRow) view.getParent();
+                                                        TextView textView = (TextView) tableRowRole.getChildAt(0);
+                                                        if(entry.getKey().contains(textView.getText().toString()))
+                                                            Log.d("Testing", textView.getText().toString());
+                                                    }
+                                                    Log.d("THE MAP LIST", entry.getKey() + " " + entry.getValue());
+                                                }
+                                            }
+                                        });
+                                    }
+                                    else
+                                    {
+                                        Log.d("Testing", "ROLE - YES");
+                                        Log.d("Testing", volunteer.text());
+                                    }
+                                }
+                                else
+                                {
+                                    Log.d("Testing", "NULL");
+                                }
+                            }
 
-                        tableLayout.addView(tableRow);
-                        //Add row to table after it has finished populating
+                            if(volunteer!=null)
+                                if(!volunteer.hasText())
+                                {
+                                    if(volunteerRoster.containsKey(results[0].getText().toString()+index))
+                                        index++;
 
-                        tableLayout.setStretchAllColumns(true);
-                        //Makes table fills the screen
+                                    volunteerRoster.put(results[0].getText().toString()+index, "freeRole");
+                                }
+                                else
+                                {
+                                    if(volunteerRoster.containsKey(results[0].getText().toString()+index))
+                                        index++;
+
+                                    volunteerRoster.put(results[0].getText().toString()+index, results[1].getText().toString());
+                                }
+
+                            if(index == 2)
+                                index--;
+
+                            for (TextView result : results)
+                            {
+                                result.setGravity(Gravity.CENTER);
+                                result.setPadding(8, 0, 8, 0);
+                                result.setLayoutParams(rowParams); //set margins between rows
+                                result.setTextSize(5, 3f);
+                                tableRow.addView(result);
+                            }
+
+                            tableLayout.addView(tableRow);
+                            //Add row to table after it has finished populating
+
+                            tableLayout.setStretchAllColumns(true);
+                            //Makes table fills the screen
+                    }
+
+                    if(parkrunRoster != null)
+                    {
+                        parkrunRoster = volunteerRoster;
+                        currentParkrun.setVolunteerRoster(volunteerRoster);
+                        parkrunReference.child(currentParkrun.getName()).setValue(currentParkrun);
                     }
                 }
                 catch (IOException e)

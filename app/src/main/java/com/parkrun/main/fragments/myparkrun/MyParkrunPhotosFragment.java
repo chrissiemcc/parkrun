@@ -12,11 +12,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
-import android.widget.TableLayout;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.firebase.ui.storage.images.FirebaseImageLoader;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -47,8 +49,7 @@ public class MyParkrunPhotosFragment extends MyParkrunMainFragment
 
     private Button addButton, refreshButton;
 
-    private RelativeLayout galleryList;
-    private TableLayout galleryTable;
+    private RelativeLayout galleryListRelative, galleryList;
 
     private FirebaseUser firebaseUser;
     private DatabaseReference userReference, parkrunReference;
@@ -63,6 +64,8 @@ public class MyParkrunPhotosFragment extends MyParkrunMainFragment
         @Override
         public void handleMessage(Message msg)
         {
+            galleryListRelative.addView(galleryList);
+
             formVisibility(true);
         }
     };
@@ -81,7 +84,7 @@ public class MyParkrunPhotosFragment extends MyParkrunMainFragment
         addButton = layout.findViewById(R.id.btnAddPhoto);
         refreshButton = layout.findViewById(R.id.btnRefreshGallery);
 
-        galleryList = layout.findViewById(R.id.galleryListRelative);
+        galleryListRelative = layout.findViewById(R.id.galleryListRelative);
 
         FirebaseAuth authentication = FirebaseAuth.getInstance();
         firebaseUser = authentication.getCurrentUser();
@@ -124,6 +127,8 @@ public class MyParkrunPhotosFragment extends MyParkrunMainFragment
 
         if(requestCode == GALLERY_INTENT && resultCode == Activity.RESULT_OK)
         {
+            Toast.makeText(getActivity(), "Uploading...", Toast.LENGTH_LONG).show();
+
             int gallerySize;
             String parkrunName = currentParkrun.getName();
             Photo photo;
@@ -224,7 +229,7 @@ public class MyParkrunPhotosFragment extends MyParkrunMainFragment
                                 currentParkrun = parkrun;
 
                                 //PHOTOS
-                                if(currentParkrun.getGallery() != null) galleryTable = setupGallery();
+                                if(currentParkrun.getGallery() != null) galleryList = setupGallery();
 
                                 parkrunFound = true;
 
@@ -288,8 +293,7 @@ public class MyParkrunPhotosFragment extends MyParkrunMainFragment
             RelativeLayout directorPanelRelative = layout.findViewById(R.id.directorGalleryRelative);
             directorPanelRelative.setVisibility(View.VISIBLE);
 
-            RelativeLayout announcementListRelative = layout.findViewById(R.id.galleryListRelative);
-            announcementListRelative.setVisibility(View.VISIBLE);
+            galleryListRelative.setVisibility(View.VISIBLE);
         }
         else
         {
@@ -301,17 +305,33 @@ public class MyParkrunPhotosFragment extends MyParkrunMainFragment
             RelativeLayout directorPanelRelative = layout.findViewById(R.id.directorGalleryRelative);
             directorPanelRelative.setVisibility(View.INVISIBLE);
 
-            RelativeLayout announcementListRelative = layout.findViewById(R.id.galleryListRelative);
-            announcementListRelative.setVisibility(View.INVISIBLE);
+            galleryListRelative.setVisibility(View.INVISIBLE);
         }
     }
 
-    private TableLayout setupGallery()
+    private RelativeLayout setupGallery()
     {
-        TableLayout tableLayout = new TableLayout(getActivity().getApplicationContext());
+        RelativeLayout relativeLayout = new RelativeLayout(getActivity().getApplicationContext());
 
         formVisibility(false);
 
-        return tableLayout;
+        List<Photo> gallery = currentParkrun.getGallery();
+
+        for(Photo photo : gallery)
+        {
+            ImageView imageView = new ImageView(getActivity().getApplicationContext());
+            storageReference = FirebaseStorage.getInstance().getReference().child(currentParkrun.getName()).child(photo.getName());
+
+            Log.d("Testing", photo.getName()+" loading");
+
+            Glide.with(getActivity().getApplicationContext())
+                    .using(new FirebaseImageLoader())
+                    .load(storageReference)
+                    .into(imageView);
+
+            relativeLayout.addView(imageView);
+        }
+
+        return relativeLayout;
     }
 }
