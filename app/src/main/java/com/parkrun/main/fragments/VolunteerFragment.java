@@ -1,12 +1,15 @@
 package com.parkrun.main.fragments;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -27,6 +30,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.parkrun.main.R;
+import com.parkrun.main.objects.Announcement;
 import com.parkrun.main.objects.Parkrun;
 import com.parkrun.main.objects.User;
 
@@ -39,6 +43,7 @@ import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class VolunteerFragment extends Fragment
@@ -209,6 +214,7 @@ public class VolunteerFragment extends Fragment
                     TableRow tableRow;
 
                     TableRow.LayoutParams rowParams = new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT);
+
                     rowParams.setMargins(0,8,0,0);
 
                     Document jsoupDocument = Jsoup.connect("http://www.parkrun.org.uk/"+ currentParkrun.getName() +"/futureroster/").get();
@@ -221,8 +227,10 @@ public class VolunteerFragment extends Fragment
 
                     int index = 1;
 
-                    for (Element row : rows)
+                    if(parkrunRoster==null || checkInCheck())
                     {
+                        for (Element row : rows)
+                        {
                             tableRow = new TableRow(getActivity().getApplicationContext());
 
                             for (int i=0;i<results.length;i++)
@@ -264,7 +272,11 @@ public class VolunteerFragment extends Fragment
                                                         TableRow tableRowRole = (TableRow) view.getParent();
                                                         TextView textView = (TextView) tableRowRole.getChildAt(0);
                                                         if(entry.getKey().contains(textView.getText().toString()))
+                                                        {
                                                             Log.d("Testing", textView.getText().toString());
+                                                            getResponse(view, entry.getKey(), textView.getText().toString());
+                                                            break;
+                                                        }
                                                     }
                                                     Log.d("THE MAP LIST", entry.getKey() + " " + entry.getValue());
                                                 }
@@ -316,14 +328,55 @@ public class VolunteerFragment extends Fragment
 
                             tableLayout.setStretchAllColumns(true);
                             //Makes table fills the screen
+
+                            parkrunRoster = volunteerRoster;
+                        }
+                    }
+                    else
+                    {
+                        for (Map.Entry<String, String> entry : parkrunRoster.entrySet())
+                        {
+                            Log.d("Testing KEY", entry.getKey());
+                            tableRow = new TableRow(getActivity().getApplicationContext());
+
+                            for (int i=0;i<results.length;i++)
+                                results[i] = new TextView(getActivity().getApplicationContext());
+
+                            results[0].setText(entry.getKey());
+                            results[0].setBackgroundColor(Color.CYAN);
+
+                            if(entry.getValue().equals("freeRole"))
+                            {
+                                results[1].setText("");
+                            }
+                            else
+                            {
+                                results[1].setText(entry.getValue());
+                            }
+                            
+                            results[1].setBackgroundColor(getResources().getColor(R.color.colorPrimary));
+
+                            for (TextView result : results)
+                            {
+                                result.setGravity(Gravity.CENTER);
+                                result.setPadding(8, 0, 8, 0);
+                                result.setLayoutParams(rowParams); //set margins between rows
+                                result.setTextSize(5, 3f);
+                                tableRow.addView(result);
+                            }
+
+                            tableLayout.addView(tableRow);
+                            //Add row to table after it has finished populating
+
+                            tableLayout.setStretchAllColumns(true);
+                            //Makes table fills the screen
+
+                            volunteerRoster = parkrunRoster;
+                        }
                     }
 
-                    if(parkrunRoster != null)
-                    {
-                        parkrunRoster = volunteerRoster;
-                        currentParkrun.setVolunteerRoster(volunteerRoster);
-                        parkrunReference.child(currentParkrun.getName()).setValue(currentParkrun);
-                    }
+                    currentParkrun.setVolunteerRoster(volunteerRoster);
+                    parkrunReference.child(currentParkrun.getName()).setValue(currentParkrun);
                 }
                 catch (IOException e)
                 {
@@ -352,4 +405,70 @@ public class VolunteerFragment extends Fragment
         }
     }
     //To make sure the item checked in the navigation menu is always correct, even on back press
+
+    private boolean checkInCheck()
+    {
+        Calendar parkrunStart = Calendar.getInstance();
+
+        if(parkrunStart.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY && parkrunStart.get(Calendar.HOUR_OF_DAY) <= 9)
+        {
+            if(parkrunStart.get(Calendar.MINUTE) < 30 && parkrunStart.get(Calendar.HOUR_OF_DAY) == 9 ||
+                    parkrunStart.get(Calendar.HOUR_OF_DAY) < 9) parkrunStart.add(Calendar.DAY_OF_WEEK, -1);
+        }//If today is Saturday - check if Saturday BEFORE parkrun starts
+
+        while (parkrunStart.get(Calendar.DAY_OF_WEEK) != Calendar.SATURDAY) parkrunStart.add(Calendar.DAY_OF_WEEK, -1);
+        parkrunStart.set(Calendar.HOUR_OF_DAY, 9);
+        parkrunStart.set(Calendar.MINUTE, 30);
+        parkrunStart.set(Calendar.SECOND, 0);
+
+        Log.d("Testing", "Last parkrun started: "+parkrunStart.getTime());
+
+        Log.d("Testing", "RESET DATE:"+currentParkrun.getLastCheckInReadDate().before(parkrunStart.getTime()));
+
+        return currentParkrun.getLastCheckInReadDate().before(parkrunStart.getTime());
+    }
+
+    public void getResponse(final View view, final String entry, String role)
+    {
+        String title = "Volunteer";
+        String message = "Are you sure you want to volunteer for " + role + "?";
+        Activity currentActivity = getActivity();
+        AlertDialog dialog;
+        AlertDialog.Builder loginCorrection = new AlertDialog.Builder(currentActivity);
+
+        loginCorrection.setMessage(message).setCancelable(false).setPositiveButton("Ok", new DialogInterface.OnClickListener()
+        {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i)
+            {
+                volunteerRoster.put(entry, currentUser.getFirstName() + " " + currentUser.getLastName());
+                currentParkrun.setVolunteerRoster(volunteerRoster);
+                parkrunReference.child(currentParkrun.getName()).setValue(currentParkrun);
+
+                currentUser.setVolunteering(true);
+                userReference.child(firebaseUser.getUid()).setValue(currentUser);
+
+                ProgressBar progressBarVolunteer = layout.findViewById(R.id.progressBarVolunteer);
+                progressBarVolunteer.setVisibility(View.VISIBLE);
+
+                FrameLayout volunteerFrame = layout.findViewById(R.id.volunteerFrame);
+                volunteerFrame.removeView(tableLayout);
+
+                runJsoupThread();
+
+                dialogInterface.cancel();
+            }
+        }).setNegativeButton("Cancel",
+                new DialogInterface.OnClickListener()
+                {
+                    public void onClick(DialogInterface dialog, int whichButton)
+                    {
+                        dialog.dismiss();
+                    }
+                }
+        ).setTitle(title);
+
+        dialog = loginCorrection.create();
+        dialog.show();
+    }//to wait for response
 }

@@ -98,8 +98,6 @@ public class HomeFragment extends Fragment implements WeatherServiceCallback {
             }
         }
 
-        Log.d("Testing", locationName);
-
         FirebaseAuth authentication = FirebaseAuth.getInstance();
         firebaseUser = authentication.getCurrentUser();
 

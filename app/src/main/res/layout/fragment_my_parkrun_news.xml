@@ -73,6 +73,13 @@
             android:layout_marginTop="15dp"
             android:visibility="invisible">
 
+            <TextView
+                android:id="@+id/tvNoAnnouncements"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/salsa"
+                android:text="No announcements for this parkrun yet!"
+                android:visibility="invisible"/>
         </RelativeLayout>
     </RelativeLayout>
 </ScrollView>

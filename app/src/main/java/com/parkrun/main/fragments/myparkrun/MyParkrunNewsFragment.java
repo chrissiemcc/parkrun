@@ -3,7 +3,6 @@ package com.parkrun.main.fragments.myparkrun;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.DialogInterface;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -49,7 +48,7 @@ public class MyParkrunNewsFragment extends MyParkrunMainFragment
 
     private View layout;
     private Button addButton, checkInButton, refreshButton;
-    private TextView tvCheckInDetails;
+    private TextView tvCheckInDetails, tvNoAnnouncements;
     private EditText txtAnnouncement;
 
     private FirebaseUser firebaseUser;
@@ -71,6 +70,7 @@ public class MyParkrunNewsFragment extends MyParkrunMainFragment
             if(currentUser.getCheckedIn()) setCheckInDetails(false);
             else setCheckInDetails(true);
 
+            announcementList.removeView(announcementTable);
             if(announcementTable!=null)
                 announcementList.addView(announcementTable);
 
@@ -101,6 +101,7 @@ public class MyParkrunNewsFragment extends MyParkrunMainFragment
 
         announcementList = layout.findViewById(R.id.announcementListRelative);
 
+        tvNoAnnouncements = layout.findViewById(R.id.tvNoAnnouncements);
         tvCheckInDetails = layout.findViewById(R.id.tvCheckInDetails);
 
         FirebaseAuth authentication = FirebaseAuth.getInstance();
@@ -189,6 +190,8 @@ public class MyParkrunNewsFragment extends MyParkrunMainFragment
                 {
                     utilAlertDialog.getAlertDialog("No text", "The text field has no text", getActivity());
                 }
+
+                txtAnnouncement.setText("");
             }
         });
 
@@ -260,6 +263,7 @@ public class MyParkrunNewsFragment extends MyParkrunMainFragment
 
                                 //ANNOUNCEMENTS
                                 if(currentParkrun.getAnnouncements() != null) announcementTable = setupAnnouncements();
+                                else tvNoAnnouncements.setVisibility(View.VISIBLE);
 
                                 checkIn = true;
                                 parkrunFound = true;
@@ -417,6 +421,9 @@ public class MyParkrunNewsFragment extends MyParkrunMainFragment
 
             RelativeLayout announcementListRelative = layout.findViewById(R.id.announcementListRelative);
             announcementListRelative.setVisibility(View.VISIBLE);
+
+            if(announcementTable==null) tvNoAnnouncements.setVisibility(View.VISIBLE);
+            else tvNoAnnouncements.setVisibility(View.INVISIBLE);
         }
         else
         {
@@ -449,6 +456,7 @@ public class MyParkrunNewsFragment extends MyParkrunMainFragment
         TableLayout tableLayout = new TableLayout(getActivity().getApplicationContext());
 
         formVisibility(false);
+        tvNoAnnouncements.setVisibility(View.INVISIBLE);
 
         List<Announcement> announcements = currentParkrun.getAnnouncements();
 
@@ -475,7 +483,8 @@ public class MyParkrunNewsFragment extends MyParkrunMainFragment
                 @Override
                 public void onClick(View view)
                 {
-                    getResponse(view);
+                    if(currentUser.getDirector())
+                        getResponse(view);
                 }
             });
 
@@ -509,6 +518,7 @@ public class MyParkrunNewsFragment extends MyParkrunMainFragment
                         ans.remove(a);
                         currentParkrun.setAnnouncements(ans);
                         parkrunReference.child(currentParkrun.getName()).setValue(currentParkrun);
+                        break;
                     }
                 }
 
@@ -523,8 +533,10 @@ public class MyParkrunNewsFragment extends MyParkrunMainFragment
                 dialogInterface.cancel();
             }
         }).setNegativeButton("Cancel",
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
+                new DialogInterface.OnClickListener()
+                {
+                    public void onClick(DialogInterface dialog, int whichButton)
+                    {
                         dialog.dismiss();
                     }
                 }

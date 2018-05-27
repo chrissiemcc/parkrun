@@ -2,6 +2,8 @@ package com.parkrun.main.fragments.myparkrun;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -15,6 +17,9 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
+import android.widget.TableLayout;
+import android.widget.TableRow;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
@@ -51,6 +56,8 @@ public class MyParkrunPhotosFragment extends MyParkrunMainFragment
 
     private RelativeLayout galleryListRelative, galleryList;
 
+    private TextView tvNoImages;
+
     private FirebaseUser firebaseUser;
     private DatabaseReference userReference, parkrunReference;
     private StorageReference storageReference;
@@ -64,7 +71,8 @@ public class MyParkrunPhotosFragment extends MyParkrunMainFragment
         @Override
         public void handleMessage(Message msg)
         {
-            galleryListRelative.addView(galleryList);
+            galleryListRelative.removeView(galleryList);
+            if(galleryList!= null) galleryListRelative.addView(galleryList);
 
             formVisibility(true);
         }
@@ -85,6 +93,8 @@ public class MyParkrunPhotosFragment extends MyParkrunMainFragment
         refreshButton = layout.findViewById(R.id.btnRefreshGallery);
 
         galleryListRelative = layout.findViewById(R.id.galleryListRelative);
+
+        tvNoImages = layout.findViewById(R.id.tvNoImages);
 
         FirebaseAuth authentication = FirebaseAuth.getInstance();
         firebaseUser = authentication.getCurrentUser();
@@ -113,7 +123,11 @@ public class MyParkrunPhotosFragment extends MyParkrunMainFragment
             @Override
             public void onClick(View view)
             {
+                if(galleryList!=null) galleryList.removeAllViews();
 
+                formVisibility(false);
+
+                detailSetup();
             }
         });
 
@@ -138,13 +152,13 @@ public class MyParkrunPhotosFragment extends MyParkrunMainFragment
             if(currentParkrun.getGallery() != null)
             {
                 gallerySize = currentParkrun.getGallery().size();
-                photo = new Photo(parkrunName+(gallerySize+1));
+                photo = new Photo(parkrunName+(gallerySize+180));
                 gallery = currentParkrun.getGallery();
             }//if gallery does exist
             else
             {
                 gallery = new ArrayList<>();
-                photo = new Photo(parkrunName+"1");
+                photo = new Photo(parkrunName+"180");
             }//if gallery does not exist
 
             gallery.add(photo);
@@ -230,6 +244,7 @@ public class MyParkrunPhotosFragment extends MyParkrunMainFragment
 
                                 //PHOTOS
                                 if(currentParkrun.getGallery() != null) galleryList = setupGallery();
+                                else tvNoImages.setVisibility(View.VISIBLE);
 
                                 parkrunFound = true;
 
@@ -312,14 +327,21 @@ public class MyParkrunPhotosFragment extends MyParkrunMainFragment
     private RelativeLayout setupGallery()
     {
         RelativeLayout relativeLayout = new RelativeLayout(getActivity().getApplicationContext());
+        TableLayout tableLayout = new TableLayout(getActivity().getApplicationContext());
 
         formVisibility(false);
+        tvNoImages.setVisibility(View.INVISIBLE);
 
         List<Photo> gallery = currentParkrun.getGallery();
 
         for(Photo photo : gallery)
         {
+            TableRow tableRow = new TableRow(getActivity().getApplicationContext());
             ImageView imageView = new ImageView(getActivity().getApplicationContext());
+            RelativeLayout imageRelative = new RelativeLayout(getActivity().getApplicationContext());
+            TextView tvImageName = new TextView(getActivity().getApplicationContext());
+            tvImageName.setVisibility(View.INVISIBLE);
+
             storageReference = FirebaseStorage.getInstance().getReference().child(currentParkrun.getName()).child(photo.getName());
 
             Log.d("Testing", photo.getName()+" loading");
@@ -329,9 +351,87 @@ public class MyParkrunPhotosFragment extends MyParkrunMainFragment
                     .load(storageReference)
                     .into(imageView);
 
-            relativeLayout.addView(imageView);
+            imageRelative.addView(imageView);
+            imageRelative.setPadding(5, 40, 5, 0);
+            tvImageName.setText(photo.getName());
+            imageRelative.addView(tvImageName);
+
+            imageRelative.setOnClickListener(new View.OnClickListener()
+            {
+                @Override
+                public void onClick(View view)
+                {
+                    if(currentUser.getDirector())
+                        getResponse(view);
+                }
+            });
+
+            tableRow.addView(imageRelative);
+            tableLayout.addView(tableRow);
         }
+        relativeLayout.addView(tableLayout);
 
         return relativeLayout;
     }
+
+    public void getResponse(final View view)
+    {
+        String title = "Delete Photo";
+        String message = "Are you sure you want to delete this photo?";
+        Activity currentActivity = getActivity();
+        AlertDialog dialog;
+        AlertDialog.Builder loginCorrection = new AlertDialog.Builder(currentActivity);
+
+        loginCorrection.setMessage(message).setCancelable(false).setPositiveButton("Ok", new DialogInterface.OnClickListener()
+        {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i)
+            {
+                RelativeLayout imageRelative = (RelativeLayout) view;
+                TextView textView = (TextView) imageRelative.getChildAt(1);
+
+                List<Photo> gallery = currentParkrun.getGallery();
+
+                for(Photo image : gallery)
+                {
+                    if(image.getName().equals(textView.getText().toString()))
+                    {
+                        gallery.remove(image);
+                        currentParkrun.setGallery(gallery);
+                        parkrunReference.child(currentParkrun.getName()).setValue(currentParkrun);
+                        break;
+                    }
+                }
+
+                StorageReference deleteReference = FirebaseStorage.getInstance().getReference().child(currentParkrun.getName()).child(textView.getText().toString());
+                deleteReference.delete().addOnSuccessListener(new OnSuccessListener<Void>()
+                {
+                    @Override
+                    public void onSuccess(Void aVoid)
+                    {
+                        Log.d("Testing", "Photo deleted");
+                    }
+                });
+
+                if(galleryList!=null) galleryList.removeAllViews();
+
+                formVisibility(false);
+
+                detailSetup();
+
+                dialogInterface.cancel();
+            }
+        }).setNegativeButton("Cancel",
+                new DialogInterface.OnClickListener()
+                {
+                    public void onClick(DialogInterface dialog, int whichButton)
+                    {
+                        dialog.dismiss();
+                    }
+                }
+        ).setTitle(title);
+
+        dialog = loginCorrection.create();
+        dialog.show();
+    }//to wait for response
 }
