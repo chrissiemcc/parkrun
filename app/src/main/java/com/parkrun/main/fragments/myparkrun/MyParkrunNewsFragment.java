@@ -147,7 +147,7 @@ public class MyParkrunNewsFragment extends MyParkrunMainFragment
             @Override
             public void onClick(View view)
             {
-                announcementList.removeAllViews();
+                announcementList.removeView(announcementTable);
                 if(announcementTable!=null) announcementTable.removeAllViews();
                 tvCheckInDetails.setText("");
 
@@ -422,8 +422,6 @@ public class MyParkrunNewsFragment extends MyParkrunMainFragment
             RelativeLayout announcementListRelative = layout.findViewById(R.id.announcementListRelative);
             announcementListRelative.setVisibility(View.VISIBLE);
 
-            if(announcementTable==null) tvNoAnnouncements.setVisibility(View.VISIBLE);
-            else tvNoAnnouncements.setVisibility(View.INVISIBLE);
         }
         else
         {
@@ -522,7 +520,7 @@ public class MyParkrunNewsFragment extends MyParkrunMainFragment
                     }
                 }
 
-                announcementList.removeAllViews();
+                announcementList.removeView(announcementTable);
                 if(announcementTable!=null) announcementTable.removeAllViews();
                 tvCheckInDetails.setText("");
 
