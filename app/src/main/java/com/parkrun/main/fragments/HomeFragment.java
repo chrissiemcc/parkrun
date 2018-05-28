@@ -103,7 +103,17 @@ public class HomeFragment extends Fragment implements WeatherServiceCallback {
 
         Log.d("Debug", "Home fragment arrived!");
 
-        String welcome = "Welcome " + firebaseUser.getDisplayName() + "!";
+        String welcome;
+
+        if(firebaseUser.getDisplayName()!=null)
+        {
+            welcome = "Welcome " + firebaseUser.getDisplayName() + "!";
+        }
+        else
+        {
+            welcome = "Welcome parkrunner!";
+        }
+
         tvHome.setText(welcome);
     }
 

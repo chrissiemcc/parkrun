@@ -71,8 +71,11 @@ public class MyParkrunNewsFragment extends MyParkrunMainFragment
             else setCheckInDetails(true);
 
             announcementList.removeView(announcementTable);
+
             if(announcementTable!=null)
-                announcementList.addView(announcementTable);
+            {
+                if(announcementTable.getParent()==null) announcementList.addView(announcementTable);
+            }
 
             formVisibility(true);
         }

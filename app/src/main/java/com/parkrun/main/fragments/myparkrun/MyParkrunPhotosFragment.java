@@ -152,13 +152,13 @@ public class MyParkrunPhotosFragment extends MyParkrunMainFragment
             if(currentParkrun.getGallery() != null)
             {
                 gallerySize = currentParkrun.getGallery().size();
-                photo = new Photo(parkrunName+(gallerySize+210));
+                photo = new Photo(parkrunName+(gallerySize+290));
                 gallery = currentParkrun.getGallery();
             }//if gallery does exist
             else
             {
                 gallery = new ArrayList<>();
-                photo = new Photo(parkrunName+"210");
+                photo = new Photo(parkrunName+"290");
             }//if gallery does not exist
 
             gallery.add(photo);
